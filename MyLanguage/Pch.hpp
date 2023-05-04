@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <format>
+#include <algorithm>
 
 // Windows
 #define NOMINMAX

@@ -37,16 +37,26 @@ public:
 	}
 
 
-	void Print() override
+	[[nodiscard]] std::string GetPrintableTokenString() const
 	{
 		if (!m_Value.empty())
 		{
-			MyLang::Print("[%s:%s]", g_TokenTypeNames[m_Type], m_Value.c_str());
+			return std::format("[{}:{}]", g_TokenTypeNames[m_Type], m_Value.c_str());
 		}
-		else
-		{
-			MyLang::Print("[%s]", g_TokenTypeNames[m_Type]);
-		}
+
+		return std::format("[{}]", g_TokenTypeNames[m_Type]);
+	}
+
+
+	ETokenType Type() const
+	{
+		return m_Type;
+	}
+
+
+	void Print() override
+	{
+		MyLang::Print(GetPrintableTokenString());
 	}
 
 
