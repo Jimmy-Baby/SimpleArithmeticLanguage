@@ -59,7 +59,7 @@
     <ClInclude Include="Parser\Parser.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Parser\NumberNode.hpp">
+    <ClInclude Include="Parser\NodeTypes.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

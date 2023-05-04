@@ -165,7 +165,7 @@
     <ClInclude Include="EntryPoint\EntryPoint.hpp" />
     <ClInclude Include="IO\Console.hpp" />
     <ClInclude Include="Lexer\Lexer.hpp" />
-    <ClInclude Include="Parser\NumberNode.hpp" />
+    <ClInclude Include="Parser\NodeTypes.hpp" />
     <ClInclude Include="Parser\Parser.hpp" />
     <ClInclude Include="Utility\Position.hpp" />
     <ClInclude Include="Lexer\Token.hpp" />
