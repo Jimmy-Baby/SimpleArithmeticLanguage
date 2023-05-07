@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Token.hpp"
-#include "Utility/Error.hpp"
+#include "Utility/Position.hpp"
 
 class CLexer
 {
@@ -18,7 +18,7 @@ public:
 
 	void Advance();
 	[[nodiscard]] CToken NumberToken();
-	CError MakeTokens(std::vector<CToken>& tokensOut);
+	std::vector<CToken> MakeTokens();
 
 
 private:

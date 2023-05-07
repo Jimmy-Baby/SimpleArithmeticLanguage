@@ -5,7 +5,8 @@
 enum ENodeType
 {
 	NODE_TYPE_NUMBER,
-	NODE_TYPE_BINARY_OP
+	NODE_TYPE_BINARY_OP,
+	NODE_TYPE_UNARY_OP
 };
 
 class CNodeBase : public CPrintable
@@ -48,6 +49,11 @@ public:
 
 	[[nodiscard]] std::string GetPrintableTokenString() const override
 	{
+		if (m_Token == nullptr)
+		{
+			return {};
+		}
+
 		return m_Token->GetPrintableTokenString();
 	}
 
@@ -122,4 +128,51 @@ private:
 	CToken* m_Token;
 	CNodeBase* m_LeftNode;
 	CNodeBase* m_RightNode;
+};
+
+class CUnaryOpNode : public CNodeBase
+{
+public:
+	explicit CUnaryOpNode(CToken* operatorToken, CNodeBase* node)
+		: CNodeBase(NODE_TYPE_UNARY_OP),
+		  m_OpToken(operatorToken),
+		  m_Node(node)
+	{
+	}
+
+
+	[[nodiscard]] bool IsValid() const override
+	{
+		return m_OpToken != nullptr && m_Node != nullptr;
+	}
+
+
+	[[nodiscard]] std::string GetPrintableTokenString() const override
+	{
+		std::string token;
+		std::string node;
+
+		if (m_OpToken)
+		{
+			token = m_OpToken->GetPrintableTokenString();
+		}
+
+		if (m_Node)
+		{
+			node = m_Node->GetPrintableTokenString();
+		}
+
+		return std::format("({}, {})", token.c_str(), node.c_str());
+	}
+
+
+	void Print() override
+	{
+		MyLang::Print(GetPrintableTokenString());
+	}
+
+
+private:
+	CToken* m_OpToken;
+	CNodeBase* m_Node;
 };

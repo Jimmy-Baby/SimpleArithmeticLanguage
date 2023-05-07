@@ -2,7 +2,7 @@
 #include "Pch.hpp"
 
 #include "Lexer.hpp"
-#include "Utility/Error.hpp"
+#include "Utility/ErrorManager.h"
 
 
 void CLexer::Advance()
@@ -24,6 +24,8 @@ void CLexer::Advance()
 {
 	std::string numString;
 	i32 dotCount = 0;
+
+	CPosition posStart = m_Pos;
 
 	while (m_CurrentChar != '\0' && (isdigit(m_CurrentChar) || m_CurrentChar == '.'))
 	{
@@ -47,15 +49,16 @@ void CLexer::Advance()
 
 	if (dotCount == 0)
 	{
-		return CToken(TYPE_INT, numString);
+		return CToken(TYPE_INT, numString, std::move(posStart), m_Pos);
 	}
 
-	return CToken(TYPE_FLOAT, numString);
+	return CToken(TYPE_FLOAT, numString, std::move(posStart), m_Pos);
 }
 
 
-CError CLexer::MakeTokens(std::vector<CToken>& tokensOut)
+std::vector<CToken> CLexer::MakeTokens()
 {
+	std::vector<CToken> tokensOut;
 	const char& ch = m_CurrentChar;
 
 	while (ch != '\0')
@@ -70,32 +73,32 @@ CError CLexer::MakeTokens(std::vector<CToken>& tokensOut)
 		}
 		else if (ch == '+')
 		{
-			tokensOut.emplace_back(CToken(TYPE_PLUS));
+			tokensOut.emplace_back(CToken(TYPE_PLUS, "", m_Pos));
 			Advance();
 		}
 		else if (ch == '-')
 		{
-			tokensOut.emplace_back(CToken(TYPE_MINUS));
+			tokensOut.emplace_back(CToken(TYPE_MINUS, "", m_Pos));
 			Advance();
 		}
 		else if (ch == '*')
 		{
-			tokensOut.emplace_back(CToken(TYPE_MUL));
+			tokensOut.emplace_back(CToken(TYPE_MUL, "", m_Pos));
 			Advance();
 		}
 		else if (ch == '/')
 		{
-			tokensOut.emplace_back(CToken(TYPE_DIV));
+			tokensOut.emplace_back(CToken(TYPE_DIV, "", m_Pos));
 			Advance();
 		}
 		else if (ch == '(')
 		{
-			tokensOut.emplace_back(CToken(TYPE_LBRACKET));
+			tokensOut.emplace_back(CToken(TYPE_LBRACKET, "", m_Pos));
 			Advance();
 		}
 		else if (ch == ')')
 		{
-			tokensOut.emplace_back(CToken(TYPE_RBRACKET));
+			tokensOut.emplace_back(CToken(TYPE_RBRACKET, "", m_Pos));
 			Advance();
 		}
 		else
@@ -106,9 +109,11 @@ CError CLexer::MakeTokens(std::vector<CToken>& tokensOut)
 			// Advance so we can recapture m_Pos after it has moved forward
 			Advance();
 
-			return CError("Illegal Character", errorStr, errorStartPosition, m_Pos);
+			g_ErrorMgr->Create<CError>("Illegal Character", errorStr, errorStartPosition, m_Pos);
+			return {};
 		}
 	}
 
-	return {};
+	tokensOut.emplace_back(CToken(TYPE_EOF, "", m_Pos));
+	return tokensOut;
 }

@@ -7,6 +7,8 @@
  * expr: term ((PLUS | MINUS) term)*
  * term: factor ((MUL | DIV) factor)*
  * factor: INT | FLOAT
+ *		   (PLUS|MINUS) factor
+ *		   LBRACKET expr RBRACKET
  */
 
 CToken* CParser::Advance()
@@ -22,9 +24,26 @@ CToken* CParser::Advance()
 }
 
 
-[[nodiscard]] CNumberNode* CParser::GetFactor()
+[[nodiscard]] CNodeBase* CParser::GetFactor()
 {
+	MARK_FUNCTION_ERROR_MANAGEMENT;
+
 	CToken* currentToken = m_CurrentToken;
+
+	if (currentToken->Type() == TYPE_PLUS ||
+		currentToken->Type() == TYPE_MINUS)
+	{
+		Advance();
+		CNodeBase* factor = GetFactor();
+
+		if (g_ErrorMgr->GetLastError() != nullptr)
+		{
+			return nullptr;
+		}
+		g_ErrorMgr->RemoveLastFunction();
+
+		return CreateNode<CUnaryOpNode>(currentToken, factor);
+	}
 
 	if (currentToken->Type() == TYPE_INT ||
 		currentToken->Type() == TYPE_FLOAT)
@@ -33,41 +52,96 @@ CToken* CParser::Advance()
 		return CreateNode<CNumberNode>(currentToken);
 	}
 
-	return CreateNode<CNumberNode>(nullptr);
+	if (currentToken->Type() == TYPE_LBRACKET)
+	{
+		Advance();
+		CNodeBase* expression = GetExpression();
+
+		if (g_ErrorMgr->GetLastError() != nullptr)
+		{
+			return nullptr;
+		}
+		g_ErrorMgr->RemoveLastFunction();
+
+		if (m_CurrentToken->Type() == TYPE_RBRACKET)
+		{
+			Advance();
+			return expression;
+		}
+
+		g_ErrorMgr->Create<CError>("Invalid Syntax", "Expected ')'", m_CurrentToken->Start(), m_CurrentToken->End());
+		return nullptr;
+	}
+
+	g_ErrorMgr->Create<CError>("Invalid Syntax", "Expected integer or floating-point number", currentToken->Start(), currentToken->End());
+	return nullptr;
 }
 
 
-[[nodiscard]] CBinaryOpNode* CParser::GetTerm()
+[[nodiscard]] CNodeBase* CParser::GetTerm()
 {
-	auto leftToken = static_cast<CNodeBase*>(GetFactor());
+	MARK_FUNCTION_ERROR_MANAGEMENT;
 
-	while (m_CurrentToken->Type() == TYPE_MUL || m_CurrentToken->Type() == TYPE_DIV)
+	auto leftToken = GetFactor();
+
+	if (g_ErrorMgr->GetLastError() != nullptr)
+	{
+		return nullptr;
+	}
+	g_ErrorMgr->RemoveLastFunction();
+
+
+	while (m_CurrentToken->Type() == TYPE_MUL ||
+		m_CurrentToken->Type() == TYPE_DIV)
 	{
 		CToken* operatorToken = m_CurrentToken;
 
 		Advance();
 
-		const auto rightToken = static_cast<CNodeBase*>(GetFactor());
+		const auto rightToken = GetFactor();
+
+		if (g_ErrorMgr->GetLastError() != nullptr)
+		{
+			return nullptr;
+		}
+		g_ErrorMgr->RemoveLastFunction();
+
 		leftToken = static_cast<CNodeBase*>(CreateNode<CBinaryOpNode>(operatorToken, leftToken, rightToken));
 	}
 
-	return static_cast<CBinaryOpNode*>(leftToken);
+	return leftToken;
 }
 
 
-[[nodiscard]] CBinaryOpNode* CParser::GetExpression()
+[[nodiscard]] CNodeBase* CParser::GetExpression()
 {
-	auto leftToken = static_cast<CNodeBase*>(GetTerm());
+	MARK_FUNCTION_ERROR_MANAGEMENT;
 
-	while (m_CurrentToken->Type() == TYPE_PLUS || m_CurrentToken->Type() == TYPE_MINUS)
+	auto leftToken = GetTerm();
+
+	if (g_ErrorMgr->GetLastError() != nullptr)
+	{
+		return nullptr;
+	}
+	g_ErrorMgr->RemoveLastFunction();
+
+	while (m_CurrentToken->Type() == TYPE_PLUS ||
+		m_CurrentToken->Type() == TYPE_MINUS)
 	{
 		CToken* operatorToken = m_CurrentToken;
 
 		Advance();
 
-		const auto rightToken = static_cast<CNodeBase*>(GetTerm());
+		const auto rightToken = GetTerm();
+
+		if (g_ErrorMgr->GetLastError() != nullptr)
+		{
+			return nullptr;
+		}
+		g_ErrorMgr->RemoveLastFunction();
+
 		leftToken = static_cast<CNodeBase*>(CreateNode<CBinaryOpNode>(operatorToken, leftToken, rightToken));
 	}
 
-	return static_cast<CBinaryOpNode*>(leftToken);
+	return leftToken;
 }

@@ -1,6 +1,8 @@
 #pragma once
+#pragma warning (disable : 26812)
 
 #include "IO/Console.hpp"
+#include "Utility/Position.hpp"
 #include "Utility/Printable.hpp"
 
 enum ETokenType
@@ -12,7 +14,8 @@ enum ETokenType
 	TYPE_MUL,
 	TYPE_DIV,
 	TYPE_LBRACKET,
-	TYPE_RBRACKET
+	TYPE_RBRACKET,
+	TYPE_EOF
 };
 
 inline const char* g_TokenTypeNames[] =
@@ -24,16 +27,27 @@ inline const char* g_TokenTypeNames[] =
 	"MUL",
 	"DIV",
 	"LBRACKET",
-	"RBRACKET"
+	"RBRACKET",
+	"TYPE_EOF"
 };
 
 class CToken final : public CPrintable
 {
 public:
-	explicit CToken(const ETokenType type, std::string value = "")
+	explicit CToken(const ETokenType type,
+	                std::string value = std::string(""),
+	                CPosition startPos = CPosition(-1, 0, 0, "", ""),
+	                CPosition endPos = CPosition(-1, 0, 0, "", ""))
 		: m_Type(type),
-		  m_Value(std::move(value))
+		  m_Value(std::move(value)),
+		  m_Start(std::move(startPos)),
+		  m_End(std::move(endPos))
 	{
+		if (m_End.Index() == -1)
+		{
+			m_End = m_Start;
+			m_End.Advance();
+		}
 	}
 
 
@@ -48,7 +62,7 @@ public:
 	}
 
 
-	ETokenType Type() const
+	[[nodiscard]] ETokenType Type() const
 	{
 		return m_Type;
 	}
@@ -60,7 +74,21 @@ public:
 	}
 
 
+	[[nodiscard]] const CPosition& Start()
+	{
+		return m_Start;
+	}
+
+
+	[[nodiscard]] const CPosition& End()
+	{
+		return m_End;
+	}
+
+
 private:
 	ETokenType m_Type;
 	std::string m_Value;
+	CPosition m_Start;
+	CPosition m_End;
 };

@@ -5,6 +5,7 @@
 #include "IO/Console.hpp"
 #include "Lexer/Lexer.hpp"
 #include "Parser/Parser.hpp"
+#include "Utility/ErrorManager.h"
 
 
 int main(const int argc, char* argv[])
@@ -17,7 +18,7 @@ namespace MyLang
 {
 	int Main(int argc, char* argv[])
 	{
-		Print(">>> MyLang Arithmetic Interpreter <<<\n");
+		Print("(MyLang Arithmetic Interpreter)\n");
 		Run();
 
 		return 0;
@@ -30,23 +31,23 @@ namespace MyLang
 
 		while (true)
 		{
+			CError* err = nullptr;
+
 			// Get input
-			Print("> ");
+			Print(">>> ");
 			std::getline(std::cin, currentInput);
 
 			// Create new lexer
 			const auto lexer = std::make_unique<CLexer>(currentInput, "[std::cin]");
 
 			// Run lexer
-			std::vector<CToken> tokens;
-			CError error = lexer->MakeTokens(tokens);
+			std::vector<CToken> tokens = lexer->MakeTokens();
 
-			// Check for errors
-			if (error())
+			err = g_ErrorMgr->GetLastError();
+			if (err != nullptr)
 			{
-				// Print error to console
-				error.Print();
-
+				err->Print();
+				g_ErrorMgr->Clear();
 				continue;
 			}
 
@@ -54,10 +55,22 @@ namespace MyLang
 			const auto parser = std::make_unique<CParser>(tokens);
 
 			// Run parser
-			CBinaryOpNode* syntaxTreeRootNode = parser->Run();
+			CNodeBase* syntaxTreeRootNode = parser->Run();
 
+			err = g_ErrorMgr->GetLastError();
+			if (err != nullptr)
+			{
+				err->Print();
+				g_ErrorMgr->Clear();
+				continue;
+			}
+
+			// Print syntax tree
 			syntaxTreeRootNode->Print();
-			Print("\n");
+
+			// Clean up for next iteration
+			g_ErrorMgr->Clear();
+			Print("\n\n");
 		}
 	}
 }

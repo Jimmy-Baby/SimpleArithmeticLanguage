@@ -160,6 +160,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Utility\ErrorManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntryPoint\EntryPoint.hpp" />
@@ -167,11 +168,11 @@
     <ClInclude Include="Lexer\Lexer.hpp" />
     <ClInclude Include="Parser\NodeTypes.hpp" />
     <ClInclude Include="Parser\Parser.hpp" />
+    <ClInclude Include="Utility\ErrorManager.h" />
     <ClInclude Include="Utility\Position.hpp" />
     <ClInclude Include="Lexer\Token.hpp" />
     <ClInclude Include="Pch.hpp" />
     <ClInclude Include="Types.hpp" />
-    <ClInclude Include="Utility\Error.hpp" />
     <ClInclude Include="Utility\Printable.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

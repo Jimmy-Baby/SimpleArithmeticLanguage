@@ -3,11 +3,11 @@
 class CPosition
 {
 public:
-	CPosition(const i32 index,
-	          const i32 lineNum,
-	          const i32 columnNum,
-	          std::string fileName,
-	          std::string fileText)
+	explicit CPosition(const i32 index,
+	                   const i32 lineNum,
+	                   const i32 columnNum,
+	                   std::string fileName,
+	                   std::string fileText)
 		: m_Index(index),
 		  m_LineNum(lineNum),
 		  m_ColumnNum(columnNum),
@@ -17,7 +17,7 @@ public:
 	}
 
 
-	CPosition* Advance(const char currentChar)
+	CPosition* Advance(const char currentChar = '\0')
 	{
 		m_Index++;
 		m_ColumnNum++;
