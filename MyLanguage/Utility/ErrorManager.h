@@ -266,7 +266,7 @@ public:
 			return false;
 		}
 
-		if (removeLastOnSuccess)
+		if (removeLastOnSuccess && !m_ErrorObjects.empty())
 		{
 			RemoveLastFunction();
 		}
