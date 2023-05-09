@@ -86,6 +86,12 @@ public:
 	}
 
 
+	std::string& GetValue()
+	{
+		return m_Value;
+	}
+
+
 private:
 	ETokenType m_Type;
 	std::string m_Value;

@@ -36,11 +36,10 @@ CToken* CParser::Advance()
 		Advance();
 		CNodeBase* factor = GetFactor();
 
-		if (g_ErrorMgr->GetLastError() != nullptr)
+		if (!g_ErrorMgr->CheckLastError(false, false, true))
 		{
 			return nullptr;
 		}
-		g_ErrorMgr->RemoveLastFunction();
 
 		return CreateNode<CUnaryOpNode>(currentToken, factor);
 	}
@@ -57,11 +56,10 @@ CToken* CParser::Advance()
 		Advance();
 		CNodeBase* expression = GetExpression();
 
-		if (g_ErrorMgr->GetLastError() != nullptr)
+		if (!g_ErrorMgr->CheckLastError(false, false, true))
 		{
 			return nullptr;
 		}
-		g_ErrorMgr->RemoveLastFunction();
 
 		if (m_CurrentToken->Type() == TYPE_RBRACKET)
 		{
@@ -84,12 +82,10 @@ CToken* CParser::Advance()
 
 	auto leftToken = GetFactor();
 
-	if (g_ErrorMgr->GetLastError() != nullptr)
+	if (!g_ErrorMgr->CheckLastError(false, false, true))
 	{
 		return nullptr;
 	}
-	g_ErrorMgr->RemoveLastFunction();
-
 
 	while (m_CurrentToken->Type() == TYPE_MUL ||
 		m_CurrentToken->Type() == TYPE_DIV)
@@ -100,11 +96,10 @@ CToken* CParser::Advance()
 
 		const auto rightToken = GetFactor();
 
-		if (g_ErrorMgr->GetLastError() != nullptr)
+		if (!g_ErrorMgr->CheckLastError(false, false, true))
 		{
 			return nullptr;
 		}
-		g_ErrorMgr->RemoveLastFunction();
 
 		leftToken = static_cast<CNodeBase*>(CreateNode<CBinaryOpNode>(operatorToken, leftToken, rightToken));
 	}
@@ -119,11 +114,10 @@ CToken* CParser::Advance()
 
 	auto leftToken = GetTerm();
 
-	if (g_ErrorMgr->GetLastError() != nullptr)
+	if (!g_ErrorMgr->CheckLastError(false, false, true))
 	{
 		return nullptr;
 	}
-	g_ErrorMgr->RemoveLastFunction();
 
 	while (m_CurrentToken->Type() == TYPE_PLUS ||
 		m_CurrentToken->Type() == TYPE_MINUS)
@@ -134,11 +128,10 @@ CToken* CParser::Advance()
 
 		const auto rightToken = GetTerm();
 
-		if (g_ErrorMgr->GetLastError() != nullptr)
+		if (!g_ErrorMgr->CheckLastError(false, false, true))
 		{
 			return nullptr;
 		}
-		g_ErrorMgr->RemoveLastFunction();
 
 		leftToken = static_cast<CNodeBase*>(CreateNode<CBinaryOpNode>(operatorToken, leftToken, rightToken));
 	}

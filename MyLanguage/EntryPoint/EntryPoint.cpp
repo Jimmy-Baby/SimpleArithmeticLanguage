@@ -2,6 +2,8 @@
 #include "Pch.hpp"
 
 #include "EntryPoint.hpp"
+
+#include "Interpreter/Interpreter.hpp"
 #include "IO/Console.hpp"
 #include "Lexer/Lexer.hpp"
 #include "Parser/Parser.hpp"
@@ -31,11 +33,14 @@ namespace MyLang
 
 		while (true)
 		{
-			CError* err = nullptr;
-
 			// Get input
 			Print(">>> ");
 			std::getline(std::cin, currentInput);
+
+
+			/*
+			 * EXECUTION
+			 */
 
 			// Create new lexer
 			const auto lexer = std::make_unique<CLexer>(currentInput, "[std::cin]");
@@ -43,11 +48,8 @@ namespace MyLang
 			// Run lexer
 			std::vector<CToken> tokens = lexer->MakeTokens();
 
-			err = g_ErrorMgr->GetLastError();
-			if (err != nullptr)
+			if (!g_ErrorMgr->CheckLastError(true, true))
 			{
-				err->Print();
-				g_ErrorMgr->Clear();
 				continue;
 			}
 
@@ -57,16 +59,29 @@ namespace MyLang
 			// Run parser
 			CNodeBase* syntaxTreeRootNode = parser->Run();
 
-			err = g_ErrorMgr->GetLastError();
-			if (err != nullptr)
+			if (!g_ErrorMgr->CheckLastError(true, true))
 			{
-				err->Print();
-				g_ErrorMgr->Clear();
 				continue;
 			}
 
-			// Print syntax tree
-			syntaxTreeRootNode->Print();
+			// Create new interpreter
+			const auto interpreter = std::make_unique<CInterpreter>();
+
+			// Run interpreter
+			CNumber result = interpreter->Visit(syntaxTreeRootNode);
+
+			if (!g_ErrorMgr->CheckLastError(true, true))
+			{
+				continue;
+			}
+
+			// Print result
+			Print("Result: %d", result.GetValue());
+
+
+			/*
+			 * CLEAN-UP
+			 */
 
 			// Clean up for next iteration
 			g_ErrorMgr->Clear();

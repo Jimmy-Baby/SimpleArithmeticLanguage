@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="EntryPoint\EntryPoint.cpp" />
+    <ClCompile Include="Interpreter\Interpreter.cpp" />
     <ClCompile Include="Lexer\Lexer.cpp" />
     <ClCompile Include="Parser\Parser.cpp" />
     <ClCompile Include="Pch.cpp">
@@ -164,7 +165,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EntryPoint\EntryPoint.hpp" />
+    <ClInclude Include="Interpreter\Number.hpp" />
     <ClInclude Include="IO\Console.hpp" />
+    <ClInclude Include="Interpreter\Interpreter.hpp" />
     <ClInclude Include="Lexer\Lexer.hpp" />
     <ClInclude Include="Parser\NodeTypes.hpp" />
     <ClInclude Include="Parser\Parser.hpp" />

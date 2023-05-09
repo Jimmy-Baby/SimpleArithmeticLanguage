@@ -12,8 +12,10 @@ enum ENodeType
 class CNodeBase : public CPrintable
 {
 public:
-	explicit CNodeBase(const ENodeType type)
-		: m_Type(type)
+	explicit CNodeBase(const ENodeType type, CPosition start, CPosition end)
+		: m_Type(type),
+		  m_Start(std::move(start)),
+		  m_End(std::move(end))
 	{
 	}
 
@@ -24,18 +26,32 @@ public:
 	}
 
 
+	[[nodiscard]] CPosition GetStart() const
+	{
+		return m_Start;
+	}
+
+
+	[[nodiscard]] CPosition GetEnd() const
+	{
+		return m_End;
+	}
+
+
 	[[nodiscard]] virtual bool IsValid() const = 0;
 	[[nodiscard]] virtual std::string GetPrintableTokenString() const = 0;
 
 private:
 	ENodeType m_Type;
+	CPosition m_Start;
+	CPosition m_End;
 };
 
-class CNumberNode : public CNodeBase
+class CNumberNode final : public CNodeBase
 {
 public:
 	explicit CNumberNode(CToken* token)
-		: CNodeBase(NODE_TYPE_NUMBER),
+		: CNodeBase(NODE_TYPE_NUMBER, token->Start(), token->End()),
 		  m_Token(token)
 	{
 	}
@@ -64,15 +80,33 @@ public:
 	}
 
 
+	[[nodiscard]] CToken* GetToken() const
+	{
+		return m_Token;
+	}
+
+
+	[[nodiscard]] std::string& GetValue() const
+	{
+		return m_Token->GetValue();
+	}
+
+
+	[[nodiscard]] i32 GetValueNumber() const
+	{
+		return std::strtol(GetValue().c_str(), nullptr, 10);
+	}
+
+
 private:
 	CToken* m_Token;
 };
 
-class CBinaryOpNode : public CNodeBase
+class CBinaryOpNode final : public CNodeBase
 {
 public:
 	explicit CBinaryOpNode(CToken* token, CNodeBase* left, CNodeBase* right)
-		: CNodeBase(NODE_TYPE_BINARY_OP),
+		: CNodeBase(NODE_TYPE_BINARY_OP, left->GetStart(), right->GetEnd()),
 		  m_Token(token),
 		  m_LeftNode(left),
 		  m_RightNode(right)
@@ -124,17 +158,35 @@ public:
 	}
 
 
+	[[nodiscard]] CToken* GetToken() const
+	{
+		return m_Token;
+	}
+
+
+	[[nodiscard]] CNodeBase* GetLeftNode() const
+	{
+		return m_LeftNode;
+	}
+
+
+	[[nodiscard]] CNodeBase* GetRightNode() const
+	{
+		return m_RightNode;
+	}
+
+
 private:
 	CToken* m_Token;
 	CNodeBase* m_LeftNode;
 	CNodeBase* m_RightNode;
 };
 
-class CUnaryOpNode : public CNodeBase
+class CUnaryOpNode final : public CNodeBase
 {
 public:
 	explicit CUnaryOpNode(CToken* operatorToken, CNodeBase* node)
-		: CNodeBase(NODE_TYPE_UNARY_OP),
+		: CNodeBase(NODE_TYPE_UNARY_OP, operatorToken->Start(), node->GetEnd()),
 		  m_OpToken(operatorToken),
 		  m_Node(node)
 	{
@@ -169,6 +221,18 @@ public:
 	void Print() override
 	{
 		MyLang::Print(GetPrintableTokenString());
+	}
+
+
+	[[nodiscard]] CNodeBase* GetChildNode() const
+	{
+		return m_Node;
+	}
+
+
+	[[nodiscard]] CToken* GetToken() const
+	{
+		return m_OpToken;
 	}
 
 

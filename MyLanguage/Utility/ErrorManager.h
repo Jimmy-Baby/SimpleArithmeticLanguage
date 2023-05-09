@@ -242,6 +242,39 @@ public:
 	}
 
 
+	// Returns true if no error is found from the last registered function
+	//
+	// printOnError = Call the base Print() function on an error object, if there are any found for the last registered function
+	// clearOnError = Clear all error information if an error is found for the last registered function
+	// removeLastOnSuccess = Clear information pertaining to last registered error function, if there is no error found for it
+	bool CheckLastError(const bool printOnError = false, const bool clearOnError = false, const bool removeLastOnSuccess = false)
+	{
+		CError* err = GetLastError();
+
+		if (err != nullptr)
+		{
+			if (printOnError)
+			{
+				err->Print();
+			}
+
+			if (clearOnError)
+			{
+				Clear();
+			}
+
+			return false;
+		}
+
+		if (removeLastOnSuccess)
+		{
+			RemoveLastFunction();
+		}
+
+		return true;
+	}
+
+
 	// Protected functions
 protected:
 	// Member variables
