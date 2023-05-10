@@ -20,8 +20,8 @@ public:
 	[[nodiscard]] CToken NumberToken();
 	std::vector<CToken> MakeTokens();
 
-
-private:
+	// Protected fields and functions
+protected:
 	std::string m_FileName;
 	std::string m_Input;
 	CPosition m_Pos;

@@ -68,7 +68,7 @@ public:
 	}
 
 
-	void Print() override
+	virtual void Print() override
 	{
 		MyLang::Print(GetPrintableTokenString());
 	}
@@ -91,8 +91,8 @@ public:
 		return m_Value;
 	}
 
-
-private:
+	// Protected fields and functions
+protected:
 	ETokenType m_Type;
 	std::string m_Value;
 	CPosition m_Start;

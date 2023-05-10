@@ -61,8 +61,8 @@ public:
 		return m_Input;
 	}
 
-
-private:
+	// Protected fields and functions
+protected:
 	i32 m_Index;
 	i32 m_LineNum;
 	i32 m_ColumnNum;

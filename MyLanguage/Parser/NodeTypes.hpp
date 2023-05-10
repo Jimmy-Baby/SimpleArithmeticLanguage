@@ -41,7 +41,8 @@ public:
 	[[nodiscard]] virtual bool IsValid() const = 0;
 	[[nodiscard]] virtual std::string GetPrintableTokenString() const = 0;
 
-private:
+	// Protected fields and functions
+protected:
 	ENodeType m_Type;
 	CPosition m_Start;
 	CPosition m_End;
@@ -57,13 +58,13 @@ public:
 	}
 
 
-	[[nodiscard]] bool IsValid() const override
+	[[nodiscard]] virtual bool IsValid() const override
 	{
 		return m_Token != nullptr;
 	}
 
 
-	[[nodiscard]] std::string GetPrintableTokenString() const override
+	[[nodiscard]] virtual std::string GetPrintableTokenString() const override
 	{
 		if (m_Token == nullptr)
 		{
@@ -74,7 +75,7 @@ public:
 	}
 
 
-	void Print() override
+	virtual void Print() override
 	{
 		MyLang::Print(GetPrintableTokenString());
 	}
@@ -97,8 +98,8 @@ public:
 		return std::strtol(GetValue().c_str(), nullptr, 10);
 	}
 
-
-private:
+	// Protected fields and functions
+protected:
 	CToken* m_Token;
 };
 
@@ -114,7 +115,7 @@ public:
 	}
 
 
-	[[nodiscard]] bool IsValid() const override
+	[[nodiscard]] virtual bool IsValid() const override
 	{
 		if (m_Token != nullptr &&
 			m_LeftNode->IsValid() &&
@@ -127,7 +128,7 @@ public:
 	}
 
 
-	[[nodiscard]] std::string GetPrintableTokenString() const override
+	[[nodiscard]] virtual std::string GetPrintableTokenString() const override
 	{
 		std::string left;
 		std::string token;
@@ -152,7 +153,7 @@ public:
 	}
 
 
-	void Print() override
+	virtual void Print() override
 	{
 		MyLang::Print(GetPrintableTokenString());
 	}
@@ -175,8 +176,8 @@ public:
 		return m_RightNode;
 	}
 
-
-private:
+	// Protected fields and functions
+protected:
 	CToken* m_Token;
 	CNodeBase* m_LeftNode;
 	CNodeBase* m_RightNode;
@@ -193,13 +194,13 @@ public:
 	}
 
 
-	[[nodiscard]] bool IsValid() const override
+	[[nodiscard]] virtual bool IsValid() const override
 	{
 		return m_OpToken != nullptr && m_Node != nullptr;
 	}
 
 
-	[[nodiscard]] std::string GetPrintableTokenString() const override
+	[[nodiscard]] virtual std::string GetPrintableTokenString() const override
 	{
 		std::string token;
 		std::string node;
@@ -218,7 +219,7 @@ public:
 	}
 
 
-	void Print() override
+	virtual void Print() override
 	{
 		MyLang::Print(GetPrintableTokenString());
 	}
@@ -235,8 +236,8 @@ public:
 		return m_OpToken;
 	}
 
-
-private:
+	// Protected fields and functions
+protected:
 	CToken* m_OpToken;
 	CNodeBase* m_Node;
 };

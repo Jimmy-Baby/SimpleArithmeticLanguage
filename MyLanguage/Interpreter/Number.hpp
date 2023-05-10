@@ -57,11 +57,8 @@ public:
 		return m_Value;
 	}
 
-
-	// Protected functions
+	// Protected fields and functions
 protected:
-	// Member variables
-private:
 	i64 m_Value;
 	CPosition m_Start;
 	CPosition m_End;

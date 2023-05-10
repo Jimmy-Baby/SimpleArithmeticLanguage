@@ -48,6 +48,10 @@ autoconf/autom4te.cache
 # CLion project configuration
 /.idea
 
+# Resharper settings
+/MyLanguage.sln.DotSettings.user
+/MyLanguage.sln.DotSettings
+
 #==============================================================================#
 # Directories to ignore (do not add trailing '/'s, they skip symlinks).
 #==============================================================================#

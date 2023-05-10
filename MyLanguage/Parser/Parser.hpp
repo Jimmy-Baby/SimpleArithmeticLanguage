@@ -43,8 +43,8 @@ public:
 	CToken* Advance();
 
 
-	template <class NodeTy, class ...Args>
-	[[nodiscard]] NodeTy* CreateNode(Args ...nodeArgs)
+	template <class NodeTy, class... Args>
+	[[nodiscard]] NodeTy* CreateNode(Args... nodeArgs)
 	{
 		// Create new node
 		m_Nodes.emplace_back(std::make_unique<NodeTy>(nodeArgs...));
@@ -54,8 +54,8 @@ public:
 	}
 
 
-	template <class NodeTy, class RetTy, class ...Args>
-	[[nodiscard]] RetTy* CreateNode(Args ...nodeArgs)
+	template <class NodeTy, class RetTy, class... Args>
+	[[nodiscard]] RetTy* CreateNode(Args... nodeArgs)
 	{
 		// Create new node
 		m_Nodes.emplace_back(std::make_unique<NodeTy>(nodeArgs...));
@@ -70,10 +70,8 @@ public:
 	[[nodiscard]] CNodeBase* GetExpression();
 
 
-	// Protected functions
+	// Protected fields and functions
 protected:
-	// Member variables
-private:
 	std::vector<CToken> m_Tokens;
 	std::vector<std::unique_ptr<CNodeBase>> m_Nodes;
 	CToken* m_CurrentToken;

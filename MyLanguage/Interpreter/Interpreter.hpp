@@ -48,14 +48,14 @@ public:
 	{
 		MARK_FUNCTION_ERROR_MANAGEMENT;
 
-		CNumber left = Visit(node->GetLeftNode());
+		const CNumber left = Visit(node->GetLeftNode());
 
 		if (!g_ErrorMgr->CheckLastError(false, false, true))
 		{
 			return CNumber(0);
 		}
 
-		CNumber right = Visit(node->GetRightNode());
+		const CNumber right = Visit(node->GetRightNode());
 
 		if (!g_ErrorMgr->CheckLastError(false, false, true))
 		{
@@ -112,10 +112,4 @@ public:
 
 		return CNumber(0);
 	}
-
-
-	// Protected functions
-protected:
-	// Member variables
-private:
 };

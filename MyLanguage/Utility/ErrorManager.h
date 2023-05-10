@@ -25,7 +25,7 @@ private:
 	bool m_IsFnMarker;
 };
 
-class CFunctionErrorMarker : public CErrorObjectBase
+class CFunctionErrorMarker final : public CErrorObjectBase
 {
 public:
 	CFunctionErrorMarker()
@@ -34,25 +34,24 @@ public:
 	}
 
 
-	[[nodiscard]] CError* GetError() override
+	[[nodiscard]] virtual CError* GetError() override
 	{
 		return nullptr;
 	}
 
 
-	void Print() override
+	virtual void Print() override
 	{
 	}
 };
 
-class CError : public CErrorObjectBase
+class CError final : public CErrorObjectBase
 {
 public:
 	CError() // Constructor for no error
 		: CError("", "", CPosition(0, 0, 0, "", ""), CPosition(0, 0, 0, "", ""))
 	{
 	}
-
 
 	explicit CError(std::string errorName,
 	                std::string details,
@@ -65,7 +64,6 @@ public:
 		  m_End(std::move(posEnd))
 	{
 	}
-
 
 	[[nodiscard]] std::string StringWithArrows(const std::string& text, const CPosition& start, const CPosition& end) const
 	{
@@ -134,33 +132,29 @@ public:
 		return result;
 	}
 
-
-	void Print() override
+	virtual void Print() override
 	{
 		MyLang::Print("\n%s (File: %s (Line %d))\n", m_ErrorName.c_str(), m_Start.FileName().c_str(), m_Start.LineNum() + 1);
 		MyLang::Print("%s %s\n\n", StringWithArrows(m_Start.Input(), m_Start, m_End).c_str(), m_Details.c_str());
 	}
 
-
-	[[nodiscard]] CError* GetError() override
+	[[nodiscard]] virtual CError* GetError() override
 	{
 		return this;
 	}
-
 
 	[[nodiscard]] bool HasError() const
 	{
 		return !m_ErrorName.empty();
 	}
 
-
 	bool operator()() const
 	{
 		return HasError();
 	}
 
-
-private:
+	// Protected fields and functions
+protected:
 	std::string m_ErrorName;
 	std::string m_Details;
 	CPosition m_Start;
@@ -178,14 +172,12 @@ public:
 	CErrorManager& operator=(CErrorManager&& source) = delete;
 	~CErrorManager() = default;
 
-
-	template <class ObjectTy, class ...Args>
-	ObjectTy* Create(Args ...args)
+	template <class ObjectTy, class... Args>
+	ObjectTy* Create(Args... args)
 	{
 		m_ErrorObjects.push_back(std::make_unique<ObjectTy>(args...));
 		return dynamic_cast<ObjectTy*>(m_ErrorObjects.back().get());
 	}
-
 
 	// If an error related to the last registered function:
 	// - Was found, then we return the last error reported
@@ -206,7 +198,6 @@ public:
 
 		return nullptr;
 	}
-
 
 	// Removes all error(s) and the marker before those error(s),
 	// at the top of the error object stack
@@ -234,13 +225,11 @@ public:
 		m_ErrorObjects.erase(lastError);
 	}
 
-
 	void Clear()
 	{
 		m_ErrorObjects.clear();
 		m_TmpErrorPool.clear();
 	}
-
 
 	// Returns true if no error is found from the last registered function
 	//
@@ -249,9 +238,8 @@ public:
 	// removeLastOnSuccess = Clear information pertaining to last registered error function, if there is no error found for it
 	bool CheckLastError(const bool printOnError = false, const bool clearOnError = false, const bool removeLastOnSuccess = false)
 	{
-		CError* err = GetLastError();
-
-		if (err != nullptr)
+		if (CError* err = GetLastError();
+			err != nullptr)
 		{
 			if (printOnError)
 			{
@@ -274,11 +262,8 @@ public:
 		return true;
 	}
 
-
-	// Protected functions
+	// Protected fields and functions
 protected:
-	// Member variables
-private:
 	std::vector<std::unique_ptr<CErrorObjectBase>> m_ErrorObjects;
 	std::vector<std::unique_ptr<CError>> m_TmpErrorPool;
 };

@@ -18,8 +18,11 @@ int main(const int argc, char* argv[])
 
 namespace MyLang
 {
-	int Main(int argc, char* argv[])
+	int Main(const int argc, char* argv[])
 	{
+		UNREFERENCED_PARAMETER(argc);
+		UNREFERENCED_PARAMETER(argv);
+
 		Print("(MyLang Arithmetic Interpreter - quit/exit to exit)\n");
 		Run();
 
@@ -58,6 +61,7 @@ namespace MyLang
 				}
 			}
 
+
 			// Create new lexer
 			const auto lexer = std::make_unique<CLexer>(currentInput, "[std::cin]");
 
@@ -69,22 +73,24 @@ namespace MyLang
 				continue;
 			}
 
+
 			// Create new parser
 			const auto parser = std::make_unique<CParser>(tokens);
 
 			// Run parser
-			CNodeBase* syntaxTreeRootNode = parser->Run();
+			CNodeBase* syntaxTreeRoot = parser->Run();
 
 			if (!g_ErrorMgr->CheckLastError(true, true))
 			{
 				continue;
 			}
 
+
 			// Create new interpreter
 			const auto interpreter = std::make_unique<CInterpreter>();
 
 			// Run interpreter
-			CNumber result = interpreter->Visit(syntaxTreeRootNode);
+			CNumber result = interpreter->Visit(syntaxTreeRoot);
 
 			if (!g_ErrorMgr->CheckLastError(true, true))
 			{
