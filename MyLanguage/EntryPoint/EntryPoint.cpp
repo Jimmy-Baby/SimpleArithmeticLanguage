@@ -20,7 +20,7 @@ namespace MyLang
 {
 	int Main(int argc, char* argv[])
 	{
-		Print("(MyLang Arithmetic Interpreter)\n");
+		Print("(MyLang Arithmetic Interpreter - quit/exit to exit)\n");
 		Run();
 
 		return 0;
@@ -41,6 +41,22 @@ namespace MyLang
 			/*
 			 * EXECUTION
 			 */
+
+			// First check for quit/exit
+			{
+				// To lowercase
+				std::ranges::transform(currentInput.begin(), currentInput.end(), currentInput.begin(),
+				                       [](const u8 c)
+				                       {
+					                       return std::tolower(c);
+				                       }
+				);
+
+				if (currentInput == "quit" || currentInput == "exit")
+				{
+					break;
+				}
+			}
 
 			// Create new lexer
 			const auto lexer = std::make_unique<CLexer>(currentInput, "[std::cin]");
