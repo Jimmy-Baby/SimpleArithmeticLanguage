@@ -23,7 +23,6 @@ CToken* CParser::Advance()
 	return m_CurrentToken;
 }
 
-
 [[nodiscard]] CNodeBase* CParser::GetFactor()
 {
 	MARK_FUNCTION_ERROR_MANAGEMENT;
@@ -75,7 +74,6 @@ CToken* CParser::Advance()
 	return nullptr;
 }
 
-
 [[nodiscard]] CNodeBase* CParser::GetTerm()
 {
 	MARK_FUNCTION_ERROR_MANAGEMENT;
@@ -106,7 +104,6 @@ CToken* CParser::Advance()
 
 	return leftToken;
 }
-
 
 [[nodiscard]] CNodeBase* CParser::GetExpression()
 {

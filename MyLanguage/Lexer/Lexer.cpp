@@ -4,7 +4,6 @@
 #include "Lexer.hpp"
 #include "Utility/ErrorManager.h"
 
-
 void CLexer::Advance()
 {
 	m_Pos.Advance(m_CurrentChar);
@@ -18,7 +17,6 @@ void CLexer::Advance()
 		m_CurrentChar = '\0';
 	}
 }
-
 
 [[nodiscard]] CToken CLexer::NumberToken()
 {
@@ -54,7 +52,6 @@ void CLexer::Advance()
 
 	return CToken(TYPE_FLOAT, numString, std::move(posStart), m_Pos);
 }
-
 
 std::vector<CToken> CLexer::MakeTokens()
 {

@@ -50,7 +50,6 @@ public:
 		}
 	}
 
-
 	[[nodiscard]] std::string GetPrintableTokenString() const
 	{
 		if (!m_Value.empty())
@@ -61,30 +60,25 @@ public:
 		return std::format("[{}]", g_TokenTypeNames[m_Type]);
 	}
 
-
 	[[nodiscard]] ETokenType Type() const
 	{
 		return m_Type;
 	}
 
-
-	virtual void Print() override
+	void Print() override
 	{
 		MyLang::Print(GetPrintableTokenString());
 	}
-
 
 	[[nodiscard]] const CPosition& Start()
 	{
 		return m_Start;
 	}
 
-
 	[[nodiscard]] const CPosition& End()
 	{
 		return m_End;
 	}
-
 
 	std::string& GetValue()
 	{

@@ -19,24 +19,20 @@ public:
 	{
 	}
 
-
 	[[nodiscard]] ENodeType GetType() const
 	{
 		return m_Type;
 	}
-
 
 	[[nodiscard]] CPosition GetStart() const
 	{
 		return m_Start;
 	}
 
-
 	[[nodiscard]] CPosition GetEnd() const
 	{
 		return m_End;
 	}
-
 
 	[[nodiscard]] virtual bool IsValid() const = 0;
 	[[nodiscard]] virtual std::string GetPrintableTokenString() const = 0;
@@ -57,14 +53,12 @@ public:
 	{
 	}
 
-
-	[[nodiscard]] virtual bool IsValid() const override
+	[[nodiscard]] bool IsValid() const override
 	{
 		return m_Token != nullptr;
 	}
 
-
-	[[nodiscard]] virtual std::string GetPrintableTokenString() const override
+	[[nodiscard]] std::string GetPrintableTokenString() const override
 	{
 		if (m_Token == nullptr)
 		{
@@ -74,24 +68,20 @@ public:
 		return m_Token->GetPrintableTokenString();
 	}
 
-
-	virtual void Print() override
+	void Print() override
 	{
 		MyLang::Print(GetPrintableTokenString());
 	}
-
 
 	[[nodiscard]] CToken* GetToken() const
 	{
 		return m_Token;
 	}
 
-
 	[[nodiscard]] std::string& GetValue() const
 	{
 		return m_Token->GetValue();
 	}
-
 
 	[[nodiscard]] i32 GetValueNumber() const
 	{
@@ -114,8 +104,7 @@ public:
 	{
 	}
 
-
-	[[nodiscard]] virtual bool IsValid() const override
+	[[nodiscard]] bool IsValid() const override
 	{
 		if (m_Token != nullptr &&
 			m_LeftNode->IsValid() &&
@@ -127,8 +116,7 @@ public:
 		return false;
 	}
 
-
-	[[nodiscard]] virtual std::string GetPrintableTokenString() const override
+	[[nodiscard]] std::string GetPrintableTokenString() const override
 	{
 		std::string left;
 		std::string token;
@@ -152,24 +140,20 @@ public:
 		return std::format("({}, {}, {})", left.c_str(), token.c_str(), right.c_str());
 	}
 
-
-	virtual void Print() override
+	void Print() override
 	{
 		MyLang::Print(GetPrintableTokenString());
 	}
-
 
 	[[nodiscard]] CToken* GetToken() const
 	{
 		return m_Token;
 	}
 
-
 	[[nodiscard]] CNodeBase* GetLeftNode() const
 	{
 		return m_LeftNode;
 	}
-
 
 	[[nodiscard]] CNodeBase* GetRightNode() const
 	{
@@ -193,14 +177,12 @@ public:
 	{
 	}
 
-
-	[[nodiscard]] virtual bool IsValid() const override
+	[[nodiscard]] bool IsValid() const override
 	{
 		return m_OpToken != nullptr && m_Node != nullptr;
 	}
 
-
-	[[nodiscard]] virtual std::string GetPrintableTokenString() const override
+	[[nodiscard]] std::string GetPrintableTokenString() const override
 	{
 		std::string token;
 		std::string node;
@@ -218,18 +200,15 @@ public:
 		return std::format("({}, {})", token.c_str(), node.c_str());
 	}
 
-
-	virtual void Print() override
+	void Print() override
 	{
 		MyLang::Print(GetPrintableTokenString());
 	}
-
 
 	[[nodiscard]] CNodeBase* GetChildNode() const
 	{
 		return m_Node;
 	}
-
 
 	[[nodiscard]] CToken* GetToken() const
 	{

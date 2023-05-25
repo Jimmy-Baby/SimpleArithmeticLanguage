@@ -15,7 +15,6 @@ public:
 		Advance();
 	}
 
-
 	void Advance();
 	[[nodiscard]] CToken NumberToken();
 	std::vector<CToken> MakeTokens();

@@ -9,12 +9,10 @@
 #include "Parser/Parser.hpp"
 #include "Utility/ErrorManager.h"
 
-
 int main(const int argc, char* argv[])
 {
 	return MyLang::Main(argc, argv);
 }
-
 
 namespace MyLang
 {
@@ -23,12 +21,12 @@ namespace MyLang
 		UNREFERENCED_PARAMETER(argc);
 		UNREFERENCED_PARAMETER(argv);
 
-		Print("(MyLang Arithmetic Interpreter - quit/exit to exit)\n");
+		Print("MyLang Arithmetic Interpreter (v1.0.1)\n");
+		Print("Type 'quit' or 'exit' to exit\n");
 		Run();
 
 		return 0;
 	}
-
 
 	void Run()
 	{
@@ -39,7 +37,6 @@ namespace MyLang
 			// Get input
 			Print(">>> ");
 			std::getline(std::cin, currentInput);
-
 
 			/*
 			 * EXECUTION
@@ -61,7 +58,6 @@ namespace MyLang
 				}
 			}
 
-
 			// Create new lexer
 			const auto lexer = std::make_unique<CLexer>(currentInput, "[std::cin]");
 
@@ -72,7 +68,6 @@ namespace MyLang
 			{
 				continue;
 			}
-
 
 			// Create new parser
 			const auto parser = std::make_unique<CParser>(tokens);
@@ -85,12 +80,8 @@ namespace MyLang
 				continue;
 			}
 
-
-			// Create new interpreter
-			const auto interpreter = std::make_unique<CInterpreter>();
-
 			// Run interpreter
-			CNumber result = interpreter->Visit(syntaxTreeRoot);
+			CNumber result = CInterpreter::Visit(syntaxTreeRoot);
 
 			if (!g_ErrorMgr->CheckLastError(true, true))
 			{
@@ -99,11 +90,6 @@ namespace MyLang
 
 			// Print result
 			Print("Result: %d", result.GetValue());
-
-
-			/*
-			 * CLEAN-UP
-			 */
 
 			// Clean up for next iteration
 			g_ErrorMgr->Clear();

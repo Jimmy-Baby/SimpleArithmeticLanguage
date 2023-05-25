@@ -15,7 +15,6 @@ public:
 	CInterpreter& operator=(CInterpreter&& source) = delete;
 	~CInterpreter() = default;
 
-
 	static CNumber Visit(CNodeBase* node)
 	{
 		switch (node->GetType())
@@ -33,7 +32,6 @@ public:
 		return CNumber(0);
 	}
 
-
 	static CNumber VisitNumberNode(const CNumberNode* node)
 	{
 		CToken* nodeToken = node->GetToken();
@@ -42,7 +40,6 @@ public:
 		numberOut.SetPosition(nodeToken->Start(), nodeToken->End());
 		return numberOut;
 	}
-
 
 	static CNumber VisitBinaryOperator(const CBinaryOpNode* node)
 	{
@@ -92,7 +89,6 @@ public:
 
 		return CNumber(0);
 	}
-
 
 	static CNumber VisitUnaryOperator(const CUnaryOpNode* node)
 	{

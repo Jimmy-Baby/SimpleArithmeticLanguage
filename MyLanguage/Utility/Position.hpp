@@ -16,7 +16,6 @@ public:
 	{
 	}
 
-
 	CPosition* Advance(const char currentChar = '\0')
 	{
 		m_Index++;
@@ -31,30 +30,25 @@ public:
 		return this;
 	}
 
-
 	[[nodiscard]] i32 Index() const
 	{
 		return m_Index;
 	}
-
 
 	[[nodiscard]] i32 LineNum() const
 	{
 		return m_LineNum;
 	}
 
-
 	[[nodiscard]] i32 ColumnNum() const
 	{
 		return m_ColumnNum;
 	}
 
-
 	[[nodiscard]] std::string FileName() const
 	{
 		return m_FileName;
 	}
-
 
 	[[nodiscard]] std::string Input() const
 	{

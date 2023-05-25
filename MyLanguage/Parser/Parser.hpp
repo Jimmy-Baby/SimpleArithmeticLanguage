@@ -15,7 +15,6 @@ public:
 		Advance();
 	}
 
-
 	CNodeBase* Run()
 	{
 		MARK_FUNCTION_ERROR_MANAGEMENT;
@@ -39,9 +38,7 @@ public:
 		return result;
 	}
 
-
 	CToken* Advance();
-
 
 	template <class NodeTy, class... Args>
 	[[nodiscard]] NodeTy* CreateNode(Args... nodeArgs)
@@ -53,7 +50,6 @@ public:
 		return static_cast<NodeTy*>(m_Nodes.back().get());
 	}
 
-
 	template <class NodeTy, class RetTy, class... Args>
 	[[nodiscard]] RetTy* CreateNode(Args... nodeArgs)
 	{
@@ -64,11 +60,9 @@ public:
 		return static_cast<RetTy*>(m_Nodes.back().get());
 	}
 
-
 	[[nodiscard]] CNodeBase* GetFactor();
 	[[nodiscard]] CNodeBase* GetTerm();
 	[[nodiscard]] CNodeBase* GetExpression();
-
 
 	// Protected fields and functions
 protected:

@@ -12,12 +12,10 @@ public:
 	{
 	}
 
-
 	[[nodiscard]] bool IsError() const
 	{
 		return m_IsFnMarker == false;
 	}
-
 
 	[[nodiscard]] virtual class CError* GetError() = 0;
 
@@ -33,14 +31,12 @@ public:
 	{
 	}
 
-
-	[[nodiscard]] virtual CError* GetError() override
+	[[nodiscard]] CError* GetError() override
 	{
 		return nullptr;
 	}
 
-
-	virtual void Print() override
+	void Print() override
 	{
 	}
 };
@@ -65,84 +61,20 @@ public:
 	{
 	}
 
-	[[nodiscard]] std::string StringWithArrows(const std::string& text, const CPosition& start, const CPosition& end) const
-	{
-		std::string result;
+	[[nodiscard]] std::string StringWithArrows(const std::string& text, const CPosition& start, const CPosition& end) const;
 
-		u64 indexStart = std::max(static_cast<i64>(text.rfind('\n', start.Index())), 0i64);
-		u64 indexEnd = text.find('\n', indexStart + 1);
-
-		if (indexEnd == std::string::npos)
-		{
-			indexEnd = text.length();
-		}
-
-		const i32 lineCount = end.LineNum() - start.LineNum() + 1;
-
-		for (int i = 0; i < lineCount; ++i)
-		{
-			std::string line = text.substr(indexStart, indexEnd - indexStart);
-
-			i32 columnStart;
-			i32 columnEnd;
-
-			if (i == 0)
-			{
-				columnStart = start.ColumnNum();
-			}
-			else
-			{
-				columnStart = 0;
-			}
-
-			if (i == lineCount - 1)
-			{
-				columnEnd = end.ColumnNum();
-			}
-			else
-			{
-				columnEnd = static_cast<i32>(line.length()) - 1;
-			}
-
-			result += line + '\n';
-
-			// Add out whitespace
-			for (int j = 0; j < columnStart; ++j)
-			{
-				result += ' ';
-			}
-
-			// Add our arrows
-			for (int j = 0; j < columnEnd - columnStart; ++j)
-			{
-				result += '^';
-			}
-
-			// Recalculate indexes
-			indexStart = indexEnd;
-			indexEnd = text.find('\n', indexStart + 1);
-
-			if (indexEnd == std::string::npos)
-			{
-				indexEnd = text.length();
-			}
-		}
-
-		std::erase(result, '\t');
-		return result;
-	}
-
-	virtual void Print() override
+	void Print() override
 	{
 		MyLang::Print("\n%s (File: %s (Line %d))\n", m_ErrorName.c_str(), m_Start.FileName().c_str(), m_Start.LineNum() + 1);
 		MyLang::Print("%s %s\n\n", StringWithArrows(m_Start.Input(), m_Start, m_End).c_str(), m_Details.c_str());
 	}
 
-	[[nodiscard]] virtual CError* GetError() override
+	[[nodiscard]] CError* GetError() override
 	{
 		return this;
 	}
 
+	// Returns true if an error is present
 	[[nodiscard]] bool HasError() const
 	{
 		return !m_ErrorName.empty();
@@ -172,6 +104,23 @@ public:
 	CErrorManager& operator=(CErrorManager&& source) = delete;
 	~CErrorManager() = default;
 
+	// If an error related to the last registered function:
+	// - Was found, then we return the last error reported
+	// - Was not found, then we return nullptr
+	[[nodiscard]] CError* GetLastError() const;
+
+	// Removes all error(s) and the marker before those error(s),
+	// at the top of the error object stack
+	void RemoveLastFunction();
+
+	// Returns true if no error is found from the last registered function
+	//
+	// printOnError = Call the base Print() function on an error object, if there are any found for the last registered function
+	// clearOnError = Clear all error information if an error is found for the last registered function
+	// removeLastOnSuccess = Clear information pertaining to last registered error function, if there is no error found for it
+	bool CheckLastError(bool printOnError = false, bool clearOnError = false, bool removeLastOnSuccess = false);
+
+	// Create a new error object
 	template <class ObjectTy, class... Args>
 	ObjectTy* Create(Args... args)
 	{
@@ -179,87 +128,11 @@ public:
 		return dynamic_cast<ObjectTy*>(m_ErrorObjects.back().get());
 	}
 
-	// If an error related to the last registered function:
-	// - Was found, then we return the last error reported
-	// - Was not found, then we return nullptr
-	[[nodiscard]] CError* GetLastError() const
-	{
-		if (m_ErrorObjects.empty())
-		{
-			return nullptr;
-		}
-
-		const auto& lastError = m_ErrorObjects.back();
-
-		if (lastError->IsError())
-		{
-			return dynamic_cast<CError*>(lastError.get());
-		}
-
-		return nullptr;
-	}
-
-	// Removes all error(s) and the marker before those error(s),
-	// at the top of the error object stack
-	void RemoveLastFunction()
-	{
-		auto lastError = std::prev(m_ErrorObjects.end());
-
-		if (lastError->get()->IsError())
-		{
-			bool deletedMarker = false;
-			while (!deletedMarker)
-			{
-				lastError = --m_ErrorObjects.erase(lastError);
-
-				if (!lastError->get()->IsError())
-				{
-					deletedMarker = true;
-				}
-			}
-
-			return;
-		}
-
-		// If no errors, then just delete our marker
-		m_ErrorObjects.erase(lastError);
-	}
-
+	// Clear all error related objects
 	void Clear()
 	{
 		m_ErrorObjects.clear();
 		m_TmpErrorPool.clear();
-	}
-
-	// Returns true if no error is found from the last registered function
-	//
-	// printOnError = Call the base Print() function on an error object, if there are any found for the last registered function
-	// clearOnError = Clear all error information if an error is found for the last registered function
-	// removeLastOnSuccess = Clear information pertaining to last registered error function, if there is no error found for it
-	bool CheckLastError(const bool printOnError = false, const bool clearOnError = false, const bool removeLastOnSuccess = false)
-	{
-		if (CError* err = GetLastError();
-			err != nullptr)
-		{
-			if (printOnError)
-			{
-				err->Print();
-			}
-
-			if (clearOnError)
-			{
-				Clear();
-			}
-
-			return false;
-		}
-
-		if (removeLastOnSuccess && !m_ErrorObjects.empty())
-		{
-			RemoveLastFunction();
-		}
-
-		return true;
 	}
 
 	// Protected fields and functions

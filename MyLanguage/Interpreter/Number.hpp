@@ -13,13 +13,11 @@ public:
 	{
 	}
 
-
 	CNumber(const CNumber& source) = default;
 	CNumber& operator=(const CNumber& source) = default;
 	CNumber(CNumber&& source) = default;
 	CNumber& operator=(CNumber&& source) = default;
 	~CNumber() = default;
-
 
 	void SetPosition(CPosition start = CPosition(-1, 0, 0, "", ""), CPosition end = CPosition(-1, 0, 0, "", ""))
 	{
@@ -27,30 +25,25 @@ public:
 		m_End = std::move(end);
 	}
 
-
 	[[nodiscard]] CNumber AddedTo(const CNumber& other) const
 	{
 		return CNumber(m_Value + other.GetValue());
 	}
-
 
 	[[nodiscard]] CNumber SubtractedBy(const CNumber& other) const
 	{
 		return CNumber(m_Value - other.GetValue());
 	}
 
-
 	[[nodiscard]] CNumber MultipliedBy(const CNumber& other) const
 	{
 		return CNumber(m_Value * other.GetValue());
 	}
 
-
 	[[nodiscard]] CNumber DividedBy(const CNumber& other) const
 	{
 		return CNumber(m_Value / other.GetValue());
 	}
-
 
 	[[nodiscard]] i64 GetValue() const
 	{
