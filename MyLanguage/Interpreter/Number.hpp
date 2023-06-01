@@ -8,8 +8,8 @@ class CNumber
 public:
 	explicit CNumber(const i64 value)
 		: m_Value(value),
-		  m_Start(-1, 0, 0, "", ""),
-		  m_End(-1, 0, 0, "", "")
+		  m_Start(-1, 0, 0, ""),
+		  m_End(-1, 0, 0, "")
 	{
 	}
 
@@ -19,7 +19,7 @@ public:
 	CNumber& operator=(CNumber&& source) = default;
 	~CNumber() = default;
 
-	void SetPosition(CPosition start = CPosition(-1, 0, 0, "", ""), CPosition end = CPosition(-1, 0, 0, "", ""))
+	void SetPosition(CPosition start = CPosition(-1, 0, 0, ""), CPosition end = CPosition(-1, 0, 0, ""))
 	{
 		m_Start = std::move(start);
 		m_End = std::move(end);

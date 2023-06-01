@@ -34,10 +34,12 @@ inline const char* g_TokenTypeNames[] =
 class CToken final : public CPrintable
 {
 public:
-	explicit CToken(const ETokenType type,
-	                std::string value = std::string(""),
-	                CPosition startPos = CPosition(-1, 0, 0, "", ""),
-	                CPosition endPos = CPosition(-1, 0, 0, "", ""))
+	CToken() = delete;
+
+	CToken(const ETokenType type,
+	       std::string value = std::string(""),
+	       CPosition startPos = CPosition(-1, 0, 0, ""),
+	       CPosition endPos = CPosition(-1, 0, 0, ""))
 		: m_Type(type),
 		  m_Value(std::move(value)),
 		  m_Start(std::move(startPos)),
@@ -65,7 +67,7 @@ public:
 		return m_Type;
 	}
 
-	void Print() override
+	virtual void Print() override
 	{
 		MyLang::Print(GetPrintableTokenString());
 	}

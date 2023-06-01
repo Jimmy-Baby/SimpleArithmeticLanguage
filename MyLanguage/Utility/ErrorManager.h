@@ -31,12 +31,12 @@ public:
 	{
 	}
 
-	[[nodiscard]] CError* GetError() override
+	[[nodiscard]] virtual CError* GetError() override
 	{
 		return nullptr;
 	}
 
-	void Print() override
+	virtual void Print() override
 	{
 	}
 };
@@ -45,7 +45,7 @@ class CError final : public CErrorObjectBase
 {
 public:
 	CError() // Constructor for no error
-		: CError("", "", CPosition(0, 0, 0, "", ""), CPosition(0, 0, 0, "", ""))
+		: CError("", "", CPosition(0, 0, 0, ""), CPosition(0, 0, 0, ""))
 	{
 	}
 
@@ -63,13 +63,13 @@ public:
 
 	[[nodiscard]] std::string StringWithArrows(const std::string& text, const CPosition& start, const CPosition& end) const;
 
-	void Print() override
+	virtual void Print() override
 	{
-		MyLang::Print("\n%s (File: %s (Line %d))\n", m_ErrorName.c_str(), m_Start.FileName().c_str(), m_Start.LineNum() + 1);
+		MyLang::Print("\n%s (Input (Line %d))\n", m_ErrorName.c_str(), m_Start.LineNum() + 1);
 		MyLang::Print("%s %s\n\n", StringWithArrows(m_Start.Input(), m_Start, m_End).c_str(), m_Details.c_str());
 	}
 
-	[[nodiscard]] CError* GetError() override
+	[[nodiscard]] virtual CError* GetError() override
 	{
 		return this;
 	}

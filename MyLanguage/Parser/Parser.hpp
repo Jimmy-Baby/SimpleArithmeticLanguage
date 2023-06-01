@@ -1,44 +1,22 @@
 ﻿#pragma once
 
 #include "NodeTypes.hpp"
-#include "Utility/ErrorManager.h"
 
 class CParser
 {
 	// Access functions
 public:
-	explicit CParser(std::vector<CToken> tokens)
-		: m_Tokens(std::move(tokens)),
-		  m_CurrentToken(nullptr),
-		  m_TokenIndex(-1)
+	static CParser* GetInstance()
 	{
-		Advance();
+		static CParser parser;
+		return &parser;
 	}
 
-	CNodeBase* Run()
-	{
-		MARK_FUNCTION_ERROR_MANAGEMENT;
-
-		CNodeBase* result = GetExpression();
-
-		// Checks for errors from parsing
-		if (g_ErrorMgr->GetLastError() != nullptr)
-		{
-			return nullptr;
-		}
-
-		// Check that we actually reached end of the file/string
-		// Otherwise there was an error at some point
-		if (m_CurrentToken->Type() != TYPE_EOF)
-		{
-			g_ErrorMgr->Create<CError>("Invalid Syntax", "Expected operator ('+', '-', '*', '/')", m_CurrentToken->Start(), m_CurrentToken->End());
-			return nullptr;
-		}
-
-		return result;
-	}
-
+	CNodeBase* GetExpressionResult(std::vector<CToken>* tokens);
 	CToken* Advance();
+	[[nodiscard]] CNodeBase* GetFactor();
+	[[nodiscard]] CNodeBase* GetTerm();
+	[[nodiscard]] CNodeBase* GetExpression();
 
 	template <class NodeTy, class... Args>
 	[[nodiscard]] NodeTy* CreateNode(Args... nodeArgs)
@@ -60,13 +38,16 @@ public:
 		return static_cast<RetTy*>(m_Nodes.back().get());
 	}
 
-	[[nodiscard]] CNodeBase* GetFactor();
-	[[nodiscard]] CNodeBase* GetTerm();
-	[[nodiscard]] CNodeBase* GetExpression();
-
 	// Protected fields and functions
 protected:
-	std::vector<CToken> m_Tokens;
+	CParser()
+		: m_CurrentToken(nullptr),
+		  m_TokenIndex(-1),
+		  m_Tokens(nullptr)
+	{
+	}
+
+	std::vector<CToken>* m_Tokens;
 	std::vector<std::unique_ptr<CNodeBase>> m_Nodes;
 	CToken* m_CurrentToken;
 	i32 m_TokenIndex;

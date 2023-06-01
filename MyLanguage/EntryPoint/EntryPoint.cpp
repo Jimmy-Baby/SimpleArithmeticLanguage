@@ -38,10 +38,6 @@ namespace MyLang
 			Print(">>> ");
 			std::getline(std::cin, currentInput);
 
-			/*
-			 * EXECUTION
-			 */
-
 			// First check for quit/exit
 			{
 				// To lowercase
@@ -58,22 +54,16 @@ namespace MyLang
 				}
 			}
 
-			// Create new lexer
-			const auto lexer = std::make_unique<CLexer>(currentInput, "[std::cin]");
-
 			// Run lexer
-			std::vector<CToken> tokens = lexer->MakeTokens();
+			std::vector<CToken> tokens = CLexer::GetInstance()->MakeTokens(&currentInput);
 
 			if (!g_ErrorMgr->CheckLastError(true, true))
 			{
 				continue;
 			}
 
-			// Create new parser
-			const auto parser = std::make_unique<CParser>(tokens);
-
 			// Run parser
-			CNodeBase* syntaxTreeRoot = parser->Run();
+			CNodeBase* syntaxTreeRoot = CParser::GetInstance()->GetExpressionResult(&tokens);
 
 			if (!g_ErrorMgr->CheckLastError(true, true))
 			{
@@ -81,7 +71,7 @@ namespace MyLang
 			}
 
 			// Run interpreter
-			CNumber result = CInterpreter::Visit(syntaxTreeRoot);
+			CNumber result = Interpreter::VisitRoot(syntaxTreeRoot);
 
 			if (!g_ErrorMgr->CheckLastError(true, true))
 			{

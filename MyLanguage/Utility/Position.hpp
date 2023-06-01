@@ -6,13 +6,11 @@ public:
 	explicit CPosition(const i32 index,
 	                   const i32 lineNum,
 	                   const i32 columnNum,
-	                   std::string fileName,
-	                   std::string fileText)
+	                   std::string input)
 		: m_Index(index),
 		  m_LineNum(lineNum),
 		  m_ColumnNum(columnNum),
-		  m_FileName(std::move(fileName)),
-		  m_Input(std::move(fileText))
+		  m_Input(std::move(input))
 	{
 	}
 
@@ -44,12 +42,7 @@ public:
 	{
 		return m_ColumnNum;
 	}
-
-	[[nodiscard]] std::string FileName() const
-	{
-		return m_FileName;
-	}
-
+	
 	[[nodiscard]] std::string Input() const
 	{
 		return m_Input;
@@ -60,6 +53,5 @@ protected:
 	i32 m_Index;
 	i32 m_LineNum;
 	i32 m_ColumnNum;
-	std::string m_FileName;
 	std::string m_Input;
 };
