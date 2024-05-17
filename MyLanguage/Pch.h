@@ -11,6 +11,3 @@
 // Windows
 #define NOMINMAX
 #include <Windows.h>
-
-// Project (Careful)
-#include "Types.hpp"

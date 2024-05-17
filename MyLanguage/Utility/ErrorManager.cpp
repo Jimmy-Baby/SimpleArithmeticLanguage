@@ -1,106 +1,108 @@
 ﻿// Precompiled headers
-#include "Pch.hpp"
+#include "Pch.h"
 
 #include "ErrorManager.h"
 
-[[nodiscard]] std::string CError::StringWithArrows(const std::string& text, const CPosition& start, const CPosition& end) const
+[[nodiscard]] std::string Error::StringWithArrows(const std::string& Text, const Position& Start, const Position& End) const
 {
-	std::string result;
+	std::string ReturnValue;
 
-	u64 indexStart = std::max(static_cast<i64>(text.rfind('\n', start.Index())), 0i64);
-	u64 indexEnd = text.find('\n', indexStart + 1);
+	uint64_t IndexStart = std::max(Text.rfind('\n', Start.Index), 0ui64);
+	uint64_t IndexEnd = Text.find('\n', IndexStart + 1);
 
-	if (indexEnd == std::string::npos)
+	if (IndexEnd == std::string::npos)
 	{
-		indexEnd = text.length();
+		IndexEnd = Text.length();
 	}
 
-	const i32 lineCount = end.LineNum() - start.LineNum() + 1;
+	const int LineCount = End.LineNumber - Start.LineNumber + 1;
 
-	for (int i = 0; i < lineCount; ++i)
+	for (int LineIndex = 0; LineIndex < LineCount; ++LineIndex)
 	{
-		std::string line = text.substr(indexStart, indexEnd - indexStart);
+		std::string Line = Text.substr(IndexStart, IndexEnd - IndexStart);
 
-		i32 columnStart;
-		i32 columnEnd;
+		int ColumnStart;
+		int ColumnEnd;
 
-		if (i == 0)
+		if (LineIndex == 0)
 		{
-			columnStart = start.ColumnNum();
+			ColumnStart = Start.ColumnNumber;
 		}
 		else
 		{
-			columnStart = 0;
+			ColumnStart = 0;
 		}
 
-		if (i == lineCount - 1)
+		if (LineIndex == LineCount - 1)
 		{
-			columnEnd = end.ColumnNum();
+			ColumnEnd = End.ColumnNumber;
 		}
 		else
 		{
-			columnEnd = static_cast<i32>(line.length()) - 1;
+			ColumnEnd = static_cast<int>(Line.length()) - 1;
 		}
 
-		result += line + '\n';
+		ReturnValue += Line + '\n';
 
 		// Add out whitespace
-		for (int j = 0; j < columnStart; ++j)
+		for (int ColumnIndex = 0; ColumnIndex < ColumnStart; ++ColumnIndex)
 		{
-			result += ' ';
+			ReturnValue += ' ';
 		}
 
 		// Add our arrows
-		for (int j = 0; j < columnEnd - columnStart; ++j)
+		for (int ColumnIndex = 0; ColumnIndex < ColumnEnd - ColumnStart; ++ColumnIndex)
 		{
-			result += '^';
+			ReturnValue += '^';
 		}
 
 		// Recalculate indexes
-		indexStart = indexEnd;
-		indexEnd = text.find('\n', indexStart + 1);
+		IndexStart = IndexEnd;
+		IndexEnd = Text.find('\n', IndexStart + 1);
 
-		if (indexEnd == std::string::npos)
+		if (IndexEnd == std::string::npos)
 		{
-			indexEnd = text.length();
+			IndexEnd = Text.length();
 		}
 	}
 
-	std::erase(result, '\t');
-	return result;
+	std::erase(ReturnValue, '\t');
+
+	return ReturnValue;
 }
 
-[[nodiscard]] CError* CErrorManager::GetLastError() const
+[[nodiscard]] Error* ErrorManager::GetLastError() const
 {
-	if (m_ErrorObjects.empty())
+	if (ObjectBases.empty())
 	{
 		return nullptr;
 	}
 
-	const auto& lastError = m_ErrorObjects.back();
+	const auto& LastError = ObjectBases.back();
 
-	if (lastError->IsError())
+	if (LastError->IsError())
 	{
-		return dynamic_cast<CError*>(lastError.get());
+		return dynamic_cast<Error*>(LastError.get());
 	}
 
 	return nullptr;
 }
 
-void CErrorManager::RemoveLastFunction()
+void ErrorManager::RemoveLastFunction()
 {
-	auto lastError = std::prev(m_ErrorObjects.end());
+	auto LastError = std::prev(ObjectBases.end());
 
-	if (lastError->get()->IsError())
+	if (LastError->get()->IsError())
 	{
-		bool deletedMarker = false;
-		while (!deletedMarker)
-		{
-			lastError = --m_ErrorObjects.erase(lastError);
+		bool DeletedFlag = false;
 
-			if (!lastError->get()->IsError())
+		while (!DeletedFlag)
+		{
+			LastError = --ObjectBases.erase(LastError);
+
+			if (!LastError->get()->IsError())
 			{
-				deletedMarker = true;
+				DeletedFlag = true;
 			}
 		}
 
@@ -108,20 +110,20 @@ void CErrorManager::RemoveLastFunction()
 	}
 
 	// If no errors, then just delete our marker
-	m_ErrorObjects.erase(lastError);
+	ObjectBases.erase(LastError);
 }
 
-bool CErrorManager::CheckLastError(const bool printOnError, const bool clearOnError, const bool removeLastOnSuccess)
+bool ErrorManager::CheckLastError(const bool PrintOnError, const bool ClearOnError, const bool RemoveLastOnSuccess)
 {
-	if (CError* err = GetLastError();
-		err != nullptr)
+	if (Error* LastError = GetLastError();
+		LastError != nullptr)
 	{
-		if (printOnError)
+		if (PrintOnError)
 		{
-			err->Print();
+			LastError->Print();
 		}
 
-		if (clearOnError)
+		if (ClearOnError)
 		{
 			Clear();
 		}
@@ -129,7 +131,7 @@ bool CErrorManager::CheckLastError(const bool printOnError, const bool clearOnEr
 		return false;
 	}
 
-	if (removeLastOnSuccess && !m_ErrorObjects.empty())
+	if (RemoveLastOnSuccess && !ObjectBases.empty())
 	{
 		RemoveLastFunction();
 	}

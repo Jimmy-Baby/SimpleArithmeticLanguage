@@ -1,26 +1,26 @@
 ﻿#pragma once
 
-#include "Printable.hpp"
-#include "IO/Console.hpp"
-#include "Utility/Position.hpp"
+#include "Printable.h"
+#include "../IO/Console.h"
+#include "Utility/Position.h"
 
-class CErrorObjectBase : public CPrintable
+class CErrorObjectBase : public Printable
 {
 public:
-	explicit CErrorObjectBase(const bool isFunctionMarker)
-		: m_IsFnMarker(isFunctionMarker)
+	explicit CErrorObjectBase(const bool IsFunctionMarker)
+		: IsFnMarker(IsFunctionMarker)
 	{
 	}
 
 	[[nodiscard]] bool IsError() const
 	{
-		return m_IsFnMarker == false;
+		return IsFnMarker == false;
 	}
 
-	[[nodiscard]] virtual class CError* GetError() = 0;
+	[[nodiscard]] virtual class Error* GetError() = 0;
 
 private:
-	bool m_IsFnMarker;
+	bool IsFnMarker;
 };
 
 class CFunctionErrorMarker final : public CErrorObjectBase
@@ -31,7 +31,7 @@ public:
 	{
 	}
 
-	[[nodiscard]] virtual CError* GetError() override
+	[[nodiscard]] Error* GetError() override
 	{
 		return nullptr;
 	}
@@ -41,35 +41,35 @@ public:
 	}
 };
 
-class CError final : public CErrorObjectBase
+class Error final : public CErrorObjectBase
 {
 public:
-	CError() // Constructor for no error
-		: CError("", "", CPosition(0, 0, 0, ""), CPosition(0, 0, 0, ""))
+	Error() // Constructor for no error
+		: Error("", "", Position(0, 0, 0, ""), Position(0, 0, 0, ""))
 	{
 	}
 
-	explicit CError(std::string errorName,
-	                std::string details,
-	                CPosition posStart,
-	                CPosition posEnd)
+	explicit Error(std::string ErrorName,
+	               std::string Details,
+	               Position PosStart,
+	               Position PosEnd)
 		: CErrorObjectBase(false),
-		  m_ErrorName(std::move(errorName)),
-		  m_Details(std::move(details)),
-		  m_Start(std::move(posStart)),
-		  m_End(std::move(posEnd))
+		  ErrorName(std::move(ErrorName)),
+		  Details(std::move(Details)),
+		  Start(std::move(PosStart)),
+		  End(std::move(PosEnd))
 	{
 	}
 
-	[[nodiscard]] std::string StringWithArrows(const std::string& text, const CPosition& start, const CPosition& end) const;
+	[[nodiscard]] std::string StringWithArrows(const std::string& Text, const Position& Start, const Position& End) const;
 
 	virtual void Print() override
 	{
-		MyLang::Print("\n%s (Input (Line %d))\n", m_ErrorName.c_str(), m_Start.LineNum() + 1);
-		MyLang::Print("%s %s\n\n", StringWithArrows(m_Start.Input(), m_Start, m_End).c_str(), m_Details.c_str());
+		ArithmeticInterpreter::Print("\n%s (Input (Line %d))\n", ErrorName.c_str(), Start.LineNumber + 1);
+		ArithmeticInterpreter::Print("%s %s\n\n", StringWithArrows(Start.Input, Start, End).c_str(), Details.c_str());
 	}
 
-	[[nodiscard]] virtual CError* GetError() override
+	[[nodiscard]] Error* GetError() override
 	{
 		return this;
 	}
@@ -77,7 +77,7 @@ public:
 	// Returns true if an error is present
 	[[nodiscard]] bool HasError() const
 	{
-		return !m_ErrorName.empty();
+		return !ErrorName.empty();
 	}
 
 	bool operator()() const
@@ -87,27 +87,27 @@ public:
 
 	// Protected fields and functions
 protected:
-	std::string m_ErrorName;
-	std::string m_Details;
-	CPosition m_Start;
-	CPosition m_End;
+	std::string ErrorName;
+	std::string Details;
+	Position Start;
+	Position End;
 };
 
-class CErrorManager
+class ErrorManager
 {
 	// Access functions
 public:
-	CErrorManager() = default;
-	CErrorManager(const CErrorManager& source) = delete;
-	CErrorManager& operator=(const CErrorManager& source) = delete;
-	CErrorManager(CErrorManager&& source) = delete;
-	CErrorManager& operator=(CErrorManager&& source) = delete;
-	~CErrorManager() = default;
+	ErrorManager() = default;
+	ErrorManager(const ErrorManager& Source) = delete;
+	ErrorManager& operator=(const ErrorManager& Source) = delete;
+	ErrorManager(ErrorManager&& Source) = delete;
+	ErrorManager& operator=(ErrorManager&& Source) = delete;
+	~ErrorManager() = default;
 
 	// If an error related to the last registered function:
 	// - Was found, then we return the last error reported
 	// - Was not found, then we return nullptr
-	[[nodiscard]] CError* GetLastError() const;
+	[[nodiscard]] Error* GetLastError() const;
 
 	// Removes all error(s) and the marker before those error(s),
 	// at the top of the error object stack
@@ -118,29 +118,29 @@ public:
 	// printOnError = Call the base Print() function on an error object, if there are any found for the last registered function
 	// clearOnError = Clear all error information if an error is found for the last registered function
 	// removeLastOnSuccess = Clear information pertaining to last registered error function, if there is no error found for it
-	bool CheckLastError(bool printOnError = false, bool clearOnError = false, bool removeLastOnSuccess = false);
+	bool CheckLastError(bool PrintOnError = false, bool ClearOnError = false, bool RemoveLastOnSuccess = false);
 
 	// Create a new error object
-	template <class ObjectTy, class... Args>
-	ObjectTy* Create(Args... args)
+	template <class ObjectTy, class... ArgTys>
+	ObjectTy* Create(ArgTys... Args)
 	{
-		m_ErrorObjects.push_back(std::make_unique<ObjectTy>(args...));
-		return dynamic_cast<ObjectTy*>(m_ErrorObjects.back().get());
+		ObjectBases.push_back(std::make_unique<ObjectTy>(Args...));
+		return dynamic_cast<ObjectTy*>(ObjectBases.back().get());
 	}
 
 	// Clear all error related objects
 	void Clear()
 	{
-		m_ErrorObjects.clear();
-		m_TmpErrorPool.clear();
+		ObjectBases.clear();
+		TmpErrorPool.clear();
 	}
 
 	// Protected fields and functions
 protected:
-	std::vector<std::unique_ptr<CErrorObjectBase>> m_ErrorObjects;
-	std::vector<std::unique_ptr<CError>> m_TmpErrorPool;
+	std::vector<std::unique_ptr<CErrorObjectBase>> ObjectBases;
+	std::vector<std::unique_ptr<Error>> TmpErrorPool;
 };
 
-inline std::unique_ptr<CErrorManager> g_ErrorMgr = std::make_unique<CErrorManager>();
+inline std::unique_ptr<ErrorManager> GErrorMgr = std::make_unique<ErrorManager>();
 
-#define MARK_FUNCTION_ERROR_MANAGEMENT g_ErrorMgr->Create<CFunctionErrorMarker>()
+#define MARK_FUNCTION_ERROR_MANAGEMENT GErrorMgr->Create<CFunctionErrorMarker>()

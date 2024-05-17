@@ -33,45 +33,48 @@
     <ClCompile Include="Interpreter\Interpreter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Lexer\Token.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter\Number.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EntryPoint\EntryPoint.hpp">
+    <ClInclude Include="EntryPoint\EntryPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Pch.hpp">
+    <ClInclude Include="Pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IO\Console.hpp">
+    <ClInclude Include="IO\Console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Lexer\Token.hpp">
+    <ClInclude Include="Lexer\Token.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Types.hpp">
+    <ClInclude Include="Lexer\Lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Lexer\Lexer.hpp">
+    <ClInclude Include="Utility\Printable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utility\Printable.hpp">
+    <ClInclude Include="Utility\Position.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utility\Position.hpp">
+    <ClInclude Include="Parser\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Parser\Parser.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Parser\NodeTypes.hpp">
+    <ClInclude Include="Parser\NodeTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility\ErrorManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Interpreter\Interpreter.hpp">
+    <ClInclude Include="Interpreter\Interpreter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Interpreter\Number.hpp">
+    <ClInclude Include="Interpreter\Number.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

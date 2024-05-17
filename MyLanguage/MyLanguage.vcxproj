@@ -123,7 +123,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Pch.hpp</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>.\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -142,7 +142,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Pch.hpp</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>Pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>.\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -155,7 +155,9 @@
   <ItemGroup>
     <ClCompile Include="EntryPoint\EntryPoint.cpp" />
     <ClCompile Include="Interpreter\Interpreter.cpp" />
+    <ClCompile Include="Interpreter\Number.cpp" />
     <ClCompile Include="Lexer\Lexer.cpp" />
+    <ClCompile Include="Lexer\Token.cpp" />
     <ClCompile Include="Parser\Parser.cpp" />
     <ClCompile Include="Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -164,19 +166,18 @@
     <ClCompile Include="Utility\ErrorManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EntryPoint\EntryPoint.hpp" />
-    <ClInclude Include="Interpreter\Number.hpp" />
-    <ClInclude Include="IO\Console.hpp" />
-    <ClInclude Include="Interpreter\Interpreter.hpp" />
-    <ClInclude Include="Lexer\Lexer.hpp" />
-    <ClInclude Include="Parser\NodeTypes.hpp" />
-    <ClInclude Include="Parser\Parser.hpp" />
+    <ClInclude Include="EntryPoint\EntryPoint.h" />
+    <ClInclude Include="Interpreter\Number.h" />
+    <ClInclude Include="IO\Console.h" />
+    <ClInclude Include="Interpreter\Interpreter.h" />
+    <ClInclude Include="Lexer\Lexer.h" />
+    <ClInclude Include="Parser\NodeTypes.h" />
+    <ClInclude Include="Parser\Parser.h" />
     <ClInclude Include="Utility\ErrorManager.h" />
-    <ClInclude Include="Utility\Position.hpp" />
-    <ClInclude Include="Lexer\Token.hpp" />
-    <ClInclude Include="Pch.hpp" />
-    <ClInclude Include="Types.hpp" />
-    <ClInclude Include="Utility\Printable.hpp" />
+    <ClInclude Include="Utility\Position.h" />
+    <ClInclude Include="Lexer\Token.h" />
+    <ClInclude Include="Pch.h" />
+    <ClInclude Include="Utility\Printable.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

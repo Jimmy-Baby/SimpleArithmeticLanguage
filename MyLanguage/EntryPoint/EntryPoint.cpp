@@ -1,89 +1,73 @@
 ﻿// Precompiled headers
-#include "Pch.hpp"
+#include "Pch.h"
 
-#include "EntryPoint.hpp"
+#include "EntryPoint.h"
 
-#include "Interpreter/Interpreter.hpp"
-#include "IO/Console.hpp"
-#include "Lexer/Lexer.hpp"
-#include "Parser/Parser.hpp"
+#include "Interpreter/Interpreter.h"
+#include "IO/Console.h"
+#include "Lexer/Lexer.h"
+#include "Parser/Parser.h"
 #include "Utility/ErrorManager.h"
 
-int main(const int argc, char* argv[])
+int main(const int Argc, char* Argv[])
 {
-	return MyLang::Main(argc, argv);
+	return ArithmeticInterpreter::Main(Argc, Argv);
 }
 
-namespace MyLang
+namespace ArithmeticInterpreter
 {
-	int Main(const int argc, char* argv[])
+	int Main(const int Argc, char* Argv[])
 	{
-		UNREFERENCED_PARAMETER(argc);
-		UNREFERENCED_PARAMETER(argv);
+		UNREFERENCED_PARAMETER(Argc);
+		UNREFERENCED_PARAMETER(Argv);
 
-		Print("MyLang Arithmetic Interpreter (v1.0.1)\n");
-		Print("Type 'quit' or 'exit' to exit\n");
-		Run();
+		Print("Type 'quit' to exit the interpreter\n");
 
-		return 0;
-	}
-
-	void Run()
-	{
-		std::string currentInput;
+		std::string CurrentInput;
 
 		while (true)
 		{
 			// Get input
 			Print(">>> ");
-			std::getline(std::cin, currentInput);
+			std::getline(std::cin, CurrentInput);
 
-			// First check for quit/exit
+			if (CurrentInput == "quit")
 			{
-				// To lowercase
-				std::ranges::transform(currentInput.begin(), currentInput.end(), currentInput.begin(),
-				                       [](const u8 c)
-				                       {
-					                       return std::tolower(c);
-				                       }
-				);
-
-				if (currentInput == "quit" || currentInput == "exit")
-				{
-					break;
-				}
+				break;
 			}
 
 			// Run lexer
-			std::vector<CToken> tokens = CLexer::GetInstance()->MakeTokens(&currentInput);
+			std::vector<Token> Tokens = Lexer::GetTokens(CurrentInput);
 
-			if (!g_ErrorMgr->CheckLastError(true, true))
+			if (!GErrorMgr->CheckLastError(true, true))
 			{
 				continue;
 			}
-
+	
 			// Run parser
-			CNodeBase* syntaxTreeRoot = CParser::GetInstance()->GetExpressionResult(&tokens);
+			NodeBase* SyntaxTreeRoot = Parser::GetExpressionResult(Tokens);
 
-			if (!g_ErrorMgr->CheckLastError(true, true))
+			if (!GErrorMgr->CheckLastError(true, true))
 			{
 				continue;
 			}
 
 			// Run interpreter
-			CNumber result = Interpreter::VisitRoot(syntaxTreeRoot);
+			const Number Result = Interpreter::Visit(SyntaxTreeRoot);
 
-			if (!g_ErrorMgr->CheckLastError(true, true))
+			if (!GErrorMgr->CheckLastError(true, true))
 			{
 				continue;
 			}
 
 			// Print result
-			Print("Result: %d", result.GetValue());
+			Print("Result: %d", Result.Value);
 
 			// Clean up for next iteration
-			g_ErrorMgr->Clear();
+			GErrorMgr->Clear();
 			Print("\n\n");
 		}
+
+		return 0;
 	}
 }

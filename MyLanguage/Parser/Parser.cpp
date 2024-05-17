@@ -1,7 +1,7 @@
 ﻿// Precompiled headers
-#include "Pch.hpp"
+#include "Pch.h"
 
-#include "Parser.hpp"
+#include "Parser.h"
 #include "Utility/ErrorManager.h"
 
 /*
@@ -12,157 +12,159 @@
  *		   LBRACKET expr RBRACKET
  */
 
-CNodeBase* CParser::GetExpressionResult(std::vector<CToken>* tokens)
+std::vector<Token> Parser::Tokens;
+std::vector<std::unique_ptr<NodeBase>> Parser::Nodes;
+Token* Parser::CurrentToken;
+int32_t Parser::TokenIndex;
+
+NodeBase* Parser::GetExpressionResult(const std::vector<Token>& InTokens)
 {
 	MARK_FUNCTION_ERROR_MANAGEMENT;
 
-	m_Tokens = tokens;
-	m_CurrentToken = nullptr;
-	m_TokenIndex = -1;
+	Tokens = InTokens;
+	CurrentToken = nullptr;
+	TokenIndex = -1;
 
 	Advance();
 
-	CNodeBase* result = GetExpression();
+	NodeBase* Result = GetExpression();
 
 	// Checks for errors from parsing
-	if (g_ErrorMgr->GetLastError() != nullptr)
+	if (GErrorMgr->GetLastError() != nullptr)
 	{
-		return result;
+		return Result;
 	}
 	 
 	// Check that we actually reached end of the file/string
 	// Otherwise there was an error at some point
-	if (m_CurrentToken->Type() != TYPE_EOF)
+	if (CurrentToken->Type != TYPE_EOF)
 	{
-		g_ErrorMgr->Create<CError>("Invalid Syntax", "Expected operator ('+', '-', '*', '/')", m_CurrentToken->Start(),
-		                           m_CurrentToken->End());
-		return result;
+		GErrorMgr->Create<Error>("Invalid Syntax", "Expected operator ('+', '-', '*', '/')", CurrentToken->Start, CurrentToken->End);
+		return Result;
 	}
 
-	return result;
+	return Result;
 }
 
-CToken* CParser::Advance()
+Token* Parser::Advance()
 {
-	m_TokenIndex++;
+	TokenIndex++;
 
-	if (m_TokenIndex < static_cast<i32>(m_Tokens->size()))
+	if (TokenIndex < static_cast<int32_t>(Tokens.size()))
 	{
-		m_CurrentToken = &m_Tokens->at(m_TokenIndex);
+		CurrentToken = &Tokens.at(TokenIndex);
 	}
 
-	return m_CurrentToken;
+	return CurrentToken;
 }
 
-[[nodiscard]] CNodeBase* CParser::GetFactor()
+[[nodiscard]] NodeBase* Parser::GetFactor()
 {
 	MARK_FUNCTION_ERROR_MANAGEMENT;
 
-	CToken* currentToken = m_CurrentToken;
+	Token* SavedToken = CurrentToken;
 
-	if (currentToken->Type() == TYPE_PLUS ||
-		currentToken->Type() == TYPE_MINUS)
+	if (SavedToken->Type == TYPE_PLUS || SavedToken->Type == TYPE_MINUS)
 	{
 		Advance();
-		CNodeBase* factor = GetFactor();
+		NodeBase* Factor = GetFactor();
 
-		if (!g_ErrorMgr->CheckLastError(false, false, true))
+		if (!GErrorMgr->CheckLastError(false, false, true))
 		{
 			return nullptr;
 		}
 
-		return CreateNode<CUnaryOpNode>(currentToken, factor);
+		return CreateNode<UnaryOpNode>(SavedToken, Factor);
 	}
 
-	if (currentToken->Type() == TYPE_INT ||
-		currentToken->Type() == TYPE_FLOAT)
+	if (SavedToken->Type == TYPE_INT || SavedToken->Type == TYPE_FLOAT)
 	{
 		Advance();
-		return CreateNode<CNumberNode>(currentToken);
+		return CreateNode<NumberNode>(SavedToken);
 	}
 
-	if (currentToken->Type() == TYPE_LBRACKET)
+	if (SavedToken->Type == TYPE_LBRACKET)
 	{
 		Advance();
-		CNodeBase* expression = GetExpression();
+		NodeBase* Expression = GetExpression();
 
-		if (!g_ErrorMgr->CheckLastError(false, false, true))
+		if (!GErrorMgr->CheckLastError(false, false, true))
 		{
 			return nullptr;
 		}
 
-		if (m_CurrentToken->Type() == TYPE_RBRACKET)
+		if (CurrentToken->Type == TYPE_RBRACKET)
 		{
 			Advance();
-			return expression;
+			return Expression;
 		}
 
-		g_ErrorMgr->Create<CError>("Invalid Syntax", "Expected ')'", m_CurrentToken->Start(), m_CurrentToken->End());
+		GErrorMgr->Create<Error>("Invalid Syntax", "Expected ')'", CurrentToken->Start, CurrentToken->End);
+
 		return nullptr;
 	}
 
-	g_ErrorMgr->Create<CError>("Invalid Syntax", "Expected integer or floating-point number", currentToken->Start(), currentToken->End());
+	GErrorMgr->Create<Error>("Invalid Syntax", "Expected integer or floating-point number", SavedToken->Start, SavedToken->End);
+
 	return nullptr;
 }
 
-[[nodiscard]] CNodeBase* CParser::GetTerm()
+[[nodiscard]] NodeBase* Parser::GetTerm()
 {
 	MARK_FUNCTION_ERROR_MANAGEMENT;
 
-	auto leftToken = GetFactor();
+	NodeBase* LeftToken = GetFactor();
 
-	if (!g_ErrorMgr->CheckLastError(false, false, true))
+	if (!GErrorMgr->CheckLastError(false, false, true))
 	{
 		return nullptr;
 	}
 
-	while (m_CurrentToken->Type() == TYPE_MUL ||
-		m_CurrentToken->Type() == TYPE_DIV)
+	while (CurrentToken->Type == TYPE_MUL || CurrentToken->Type == TYPE_DIV)
 	{
-		CToken* operatorToken = m_CurrentToken;
+		Token* OperatorToken = CurrentToken;
 
 		Advance();
 
-		const auto rightToken = GetFactor();
+		const auto RightToken = GetFactor();
 
-		if (!g_ErrorMgr->CheckLastError(false, false, true))
+		if (!GErrorMgr->CheckLastError(false, false, true))
 		{
 			return nullptr;
 		}
 
-		leftToken = static_cast<CNodeBase*>(CreateNode<CBinaryOpNode>(operatorToken, leftToken, rightToken));
+		LeftToken = static_cast<NodeBase*>(CreateNode<BinaryOpNode>(OperatorToken, LeftToken, RightToken));
 	}
 
-	return leftToken;
+	return LeftToken;
 }
 
-[[nodiscard]] CNodeBase* CParser::GetExpression()
+[[nodiscard]] NodeBase* Parser::GetExpression()
 {
 	MARK_FUNCTION_ERROR_MANAGEMENT;
 
-	auto leftToken = GetTerm();
+	auto LeftToken = GetTerm();
 
-	if (!g_ErrorMgr->CheckLastError(false, false, true))
+	if (!GErrorMgr->CheckLastError(false, false, true))
 	{
 		return nullptr;
 	}
 
-	while (m_CurrentToken->Type() == TYPE_PLUS ||
-		m_CurrentToken->Type() == TYPE_MINUS)
+	while (CurrentToken->Type == TYPE_PLUS || CurrentToken->Type == TYPE_MINUS)
 	{
-		CToken* operatorToken = m_CurrentToken;
+		Token* OperatorToken = CurrentToken;
 
 		Advance();
 
-		const auto rightToken = GetTerm();
+		const auto RightToken = GetTerm();
 
-		if (!g_ErrorMgr->CheckLastError(false, false, true))
+		if (!GErrorMgr->CheckLastError(false, false, true))
 		{
 			return nullptr;
 		}
 
-		leftToken = static_cast<CNodeBase*>(CreateNode<CBinaryOpNode>(operatorToken, leftToken, rightToken));
+		LeftToken = static_cast<NodeBase*>(CreateNode<BinaryOpNode>(OperatorToken, LeftToken, RightToken));
 	}
 
-	return leftToken;
+	return LeftToken;
 }

@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-class CPrintable
+class Printable
 {
 public:
-	virtual ~CPrintable() = default;
+	virtual ~Printable() = default;
 	virtual void Print() = 0;
 };

@@ -1,122 +1,125 @@
 ﻿// Precompiled headers
-#include "Pch.hpp"
+#include "Pch.h"
 
-#include "Lexer.hpp"
+#include "Lexer.h"
 #include "Utility/ErrorManager.h"
 
-std::vector<CToken> CLexer::MakeTokens(std::string* input)
+std::string* Lexer::CurrentInput = nullptr;
+Position Lexer::CurrentPosition(-1, 0, -1, "");
+char Lexer::CurrentCharacter = '\0';
+
+std::vector<Token> Lexer::GetTokens(std::string& Input)
 {
-	m_Input = input;
-	m_Pos = CPosition(-1, 0, -1, *m_Input);
-	m_CurrentChar = '\0';
+	std::vector<Token> Result;
+
+	CurrentInput = &Input;
+	CurrentPosition = Position(-1, 0, -1, Input);
+	CurrentCharacter = '\0';
 
 	Advance();
 
-	std::vector<CToken> tokensOut;
-	const char& ch = m_CurrentChar;
-
-	while (ch != '\0')
+	while (CurrentCharacter != '\0')
 	{
-		if (ch == ' ' || ch == '\t')
+		if (CurrentCharacter == ' ' || CurrentCharacter == '\t')
 		{
 			Advance();
 		}
-		else if (isdigit(ch))
+		else if (isdigit(CurrentCharacter))
 		{
-			tokensOut.emplace_back(NumberToken());
+			Result.emplace_back(GetNumberToken());
 		}
-		else if (ch == '+')
+		else if (CurrentCharacter == '+')
 		{
-			tokensOut.emplace_back(CToken(TYPE_PLUS, "", m_Pos));
+			Result.emplace_back(TYPE_PLUS, "", CurrentPosition);
 			Advance();
 		}
-		else if (ch == '-')
+		else if (CurrentCharacter == '-')
 		{
-			tokensOut.emplace_back(CToken(TYPE_MINUS, "", m_Pos));
+			Result.emplace_back(TYPE_MINUS, "", CurrentPosition);
 			Advance();
 		}
-		else if (ch == '*')
+		else if (CurrentCharacter == '*')
 		{
-			tokensOut.emplace_back(CToken(TYPE_MUL, "", m_Pos));
+			Result.emplace_back(TYPE_MUL, "", CurrentPosition);
 			Advance();
 		}
-		else if (ch == '/')
+		else if (CurrentCharacter == '/')
 		{
-			tokensOut.emplace_back(CToken(TYPE_DIV, "", m_Pos));
+			Result.emplace_back(TYPE_DIV, "", CurrentPosition);
 			Advance();
 		}
-		else if (ch == '(')
+		else if (CurrentCharacter == '(')
 		{
-			tokensOut.emplace_back(CToken(TYPE_LBRACKET, "", m_Pos));
+			Result.emplace_back(TYPE_LBRACKET, "", CurrentPosition);
 			Advance();
 		}
-		else if (ch == ')')
+		else if (CurrentCharacter == ')')
 		{
-			tokensOut.emplace_back(CToken(TYPE_RBRACKET, "", m_Pos));
+			Result.emplace_back(TYPE_RBRACKET, "", CurrentPosition);
 			Advance();
 		}
 		else
 		{
-			const std::string errorStr = std::format("'{}'", m_CurrentChar);
-			const CPosition errorStartPosition = m_Pos;
+			const std::string ErrorStr = std::format("'{}'", CurrentCharacter);
+			const Position ErrorStartPosition = CurrentPosition;
 
 			// Advance so we can recapture m_Pos after it has moved forward
 			Advance();
 
-			g_ErrorMgr->Create<CError>("Illegal Character", errorStr, errorStartPosition, m_Pos);
+			GErrorMgr->Create<Error>("Illegal Character", ErrorStr, ErrorStartPosition, CurrentPosition);
 			return {};
 		}
 	}
 
-	tokensOut.emplace_back(CToken(TYPE_EOF, "", m_Pos));
-	return tokensOut;
+	Result.emplace_back(TYPE_EOF, "", CurrentPosition);
+	return Result;
 }
 
-void CLexer::Advance()
+void Lexer::Advance()
 {
-	m_Pos.Advance(m_CurrentChar);
+	CurrentPosition.Advance(CurrentCharacter);
 
-	if (m_Pos.Index() < static_cast<i32>(m_Input->size()))
+	if (CurrentPosition.Index < static_cast<int32_t>(CurrentInput->size()))
 	{
-		m_CurrentChar = m_Input->at(m_Pos.Index());
+		CurrentCharacter = CurrentInput->at(CurrentPosition.Index);
 	}
 	else
 	{
-		m_CurrentChar = '\0';
+		CurrentCharacter = '\0';
 	}
 }
 
-[[nodiscard]] CToken CLexer::NumberToken()
+[[nodiscard]] Token Lexer::GetNumberToken()
 {
-	std::string numString;
-	i32 dotCount = 0;
+	std::string NumberString;
+	int32_t PeriodCount = 0;
 
-	CPosition posStart = m_Pos;
+	Position StartPosition = CurrentPosition;
 
-	while (m_CurrentChar != '\0' && (isdigit(m_CurrentChar) || m_CurrentChar == '.'))
+	while (CurrentCharacter != '\0' && (isdigit(CurrentCharacter) || CurrentCharacter == '.'))
 	{
-		if (m_CurrentChar == '.')
+		if (CurrentCharacter == '.')
 		{
-			if (dotCount == 1)
+			if (PeriodCount == 1)
 			{
 				break;
 			}
 
-			dotCount++;
-			numString += '.';
+			PeriodCount++;
+			NumberString += '.';
 		}
 		else
 		{
-			numString += m_CurrentChar;
+			NumberString += CurrentCharacter;
 		}
 
 		Advance();
 	}
 
-	if (dotCount == 0)
+	if (PeriodCount == 0)
 	{
-		return CToken(TYPE_INT, numString, std::move(posStart), m_Pos);
+		return { TYPE_INT, NumberString, std::move(StartPosition), CurrentPosition };
 	}
 
-	return CToken(TYPE_FLOAT, numString, std::move(posStart), m_Pos);
+	return { TYPE_FLOAT, NumberString, std::move(StartPosition), CurrentPosition };
 }

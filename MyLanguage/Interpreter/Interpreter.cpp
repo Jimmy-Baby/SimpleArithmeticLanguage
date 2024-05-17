@@ -1,73 +1,69 @@
-﻿#include "Pch.hpp"
+﻿#include "Pch.h"
 
-#include "Interpreter.hpp"
+#include "Interpreter.h"
 #include "Utility/ErrorManager.h"
 
 namespace Interpreter
 {
-	CNumber VisitRoot(CNodeBase* root)
+	Number Visit(NodeBase* Root)
 	{
-		switch (root->GetType())
+		switch (Root->Type)
 		{
 		case NODE_TYPE_BINARY_OP:
-			return VisitBinaryOperator(dynamic_cast<CBinaryOpNode*>(root));
+			return VisitBinaryOperator(dynamic_cast<BinaryOpNode*>(Root));
 
 		case NODE_TYPE_NUMBER:
-			return VisitNumberNode(dynamic_cast<CNumberNode*>(root));
+			return VisitNumberNode(dynamic_cast<NumberNode*>(Root));
 
 		case NODE_TYPE_UNARY_OP:
-			return VisitUnaryOperator(dynamic_cast<CUnaryOpNode*>(root));
+			return VisitUnaryOperator(dynamic_cast<UnaryOpNode*>(Root));
 		}
 
-		return CNumber(0);
+		return Number(0);
 	}
 
-	CNumber VisitNumberNode(const CNumberNode* node)
+	Number VisitNumberNode(const NumberNode* Node)
 	{
-		CToken* nodeToken = node->GetToken();
-		CNumber numberOut(node->GetValueNumber());
-
-		numberOut.SetPosition(nodeToken->Start(), nodeToken->End());
-		return numberOut;
+		return Number(Node->GetValueNumber());
 	}
 
-	CNumber VisitBinaryOperator(const CBinaryOpNode* node)
+	Number VisitBinaryOperator(const BinaryOpNode* Node)
 	{
 		MARK_FUNCTION_ERROR_MANAGEMENT;
 
-		const CNumber left = VisitRoot(node->GetLeftNode());
+		const Number Left = Visit(Node->LeftNode);
 
-		if (!g_ErrorMgr->CheckLastError(false, false, true))
+		if (!GErrorMgr->CheckLastError(false, false, true))
 		{
-			return CNumber(0);
+			return Number(0);
 		}
 
-		const CNumber right = VisitRoot(node->GetRightNode());
+		const Number Right = Visit(Node->RightNode);
 
-		if (!g_ErrorMgr->CheckLastError(false, false, true))
+		if (!GErrorMgr->CheckLastError(false, false, true))
 		{
-			return CNumber(0);
+			return Number(0);
 		}
 
-		switch (node->GetToken()->Type())
+		switch (Node->Token->Type)
 		{
 		case TYPE_PLUS:
-			return left.AddedTo(right);
+			return Left.AddedTo(Right);
 
 		case TYPE_MINUS:
-			return left.SubtractedBy(right);
+			return Left.SubtractedBy(Right);
 
 		case TYPE_MUL:
-			return left.MultipliedBy(right);
+			return Left.MultipliedBy(Right);
 
 		case TYPE_DIV:
-			if (right.GetValue() == 0)
+			if (Right.Value == 0)
 			{
-				g_ErrorMgr->Create<CError>("Runtime Error", "Integer Division by 0", node->GetStart(), node->GetEnd());
-				return CNumber(0);
+				GErrorMgr->Create<Error>("Runtime Error", "Integer Division by 0", Node->Start, Node->End);
+				return Number(0);
 			}
 
-			return left.DividedBy(right);
+			return Left.DividedBy(Right);
 
 		case TYPE_FLOAT:
 		case TYPE_LBRACKET:
@@ -77,25 +73,25 @@ namespace Interpreter
 			break;
 		}
 
-		return CNumber(0);
+		return Number(0);
 	}
 
-	CNumber VisitUnaryOperator(const CUnaryOpNode* node)
+	Number VisitUnaryOperator(const UnaryOpNode* Node)
 	{
 		MARK_FUNCTION_ERROR_MANAGEMENT;
 
-		const CNumber child = VisitRoot(node->GetChildNode());
+		const Number Child = Visit(Node->ChildNode);
 
-		if (!g_ErrorMgr->CheckLastError(false, false, true))
+		if (!GErrorMgr->CheckLastError(false, false, true))
 		{
-			return CNumber(0);
+			return Number(0);
 		}
 
-		if (node->GetToken()->Type() == TYPE_MINUS)
+		if (Node->OperatorToken->Type == TYPE_MINUS)
 		{
-			return child.MultipliedBy(CNumber(-1));
+			return Child.MultipliedBy(Number(-1));
 		}
 
-		return CNumber(0);
+		return Number(0);
 	}
 }
